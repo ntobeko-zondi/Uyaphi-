@@ -1,0 +1,10 @@
+{
+  "name": "SafeRide Africa",
+  "description": "Continental trust and safety registry for ride-hailing services in Africa. Features real-time driver trust scoring, community incident reporting, AI-powered threat scanning, interactive safety maps, and emergency SOS alerts.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
