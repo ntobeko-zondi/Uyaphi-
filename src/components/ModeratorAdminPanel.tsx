@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from "react";
-import { UserRole, Driver, IncidentReport, SafetyAlert } from "../types";
+import { UserRole, Driver, IncidentReport, SafetyAlert, AboutMeData } from "../types";
 import {
   Users,
   ShieldCheck,
@@ -27,7 +27,11 @@ import {
   MapPin,
   Activity,
   CheckCircle2,
-  Car
+  Car,
+  Mail,
+  Phone,
+  Linkedin,
+  FileText
 } from "lucide-react";
 
 interface ModAdminProps {
@@ -45,6 +49,8 @@ interface ModAdminProps {
   selectedCountry: string;
   activeTab: string;
   onChangeTab: (tab: any) => void;
+  aboutMeData: AboutMeData;
+  onUpdateAboutMe: (updated: AboutMeData) => void;
 }
 
 export default function ModeratorAdminPanel({
@@ -62,6 +68,8 @@ export default function ModeratorAdminPanel({
   selectedCountry,
   activeTab,
   onChangeTab,
+  aboutMeData,
+  onUpdateAboutMe,
 }: ModAdminProps) {
 
   // Sum of total drivers, incidents, average score
@@ -89,6 +97,38 @@ export default function ModeratorAdminPanel({
   const [alertMessage, setAlertMessage] = useState("");
   const [alertCategory, setAlertCategory] = useState<"hotspot" | "incident" | "emergency" | "weather" | "system">("incident");
   const [alertSeverity, setAlertSeverity] = useState<"info" | "warning" | "critical">("warning");
+
+  // About Me Editing States
+  const [aboutMeName, setAboutMeName] = useState(aboutMeData.fullName);
+  const [aboutMeTitle, setAboutMeTitle] = useState(aboutMeData.title);
+  const [aboutMeBio, setAboutMeBio] = useState(aboutMeData.bio);
+  const [aboutMeWits, setAboutMeWits] = useState(aboutMeData.witsProject);
+  const [aboutMePassion, setAboutMePassion] = useState(aboutMeData.passion);
+  const [aboutMeLeadership, setAboutMeLeadership] = useState(aboutMeData.leadership);
+  const [aboutMePhone1, setAboutMePhone1] = useState(aboutMeData.phone1);
+  const [aboutMePhone2, setAboutMePhone2] = useState(aboutMeData.phone2);
+  const [aboutMeEmail, setAboutMeEmail] = useState(aboutMeData.email);
+  const [aboutMeLocation, setAboutMeLocation] = useState(aboutMeData.location);
+  const [aboutMeLinkedin, setAboutMeLinkedin] = useState(aboutMeData.linkedin);
+  const [aboutMePhoto, setAboutMePhoto] = useState(aboutMeData.profilePhoto);
+  const [aboutMeLanguages, setAboutMeLanguages] = useState(aboutMeData.languages.join(", "));
+  const [aboutMeStatusMessage, setAboutMeStatusMessage] = useState("");
+
+  React.useEffect(() => {
+    setAboutMeName(aboutMeData.fullName);
+    setAboutMeTitle(aboutMeData.title);
+    setAboutMeBio(aboutMeData.bio);
+    setAboutMeWits(aboutMeData.witsProject);
+    setAboutMePassion(aboutMeData.passion);
+    setAboutMeLeadership(aboutMeData.leadership);
+    setAboutMePhone1(aboutMeData.phone1);
+    setAboutMePhone2(aboutMeData.phone2);
+    setAboutMeEmail(aboutMeData.email);
+    setAboutMeLocation(aboutMeData.location);
+    setAboutMeLinkedin(aboutMeData.linkedin);
+    setAboutMePhoto(aboutMeData.profilePhoto);
+    setAboutMeLanguages(aboutMeData.languages.join(", "));
+  }, [aboutMeData]);
 
   const MONETIZATION_SUMMARY = [
     { source: "Rider premium top-ups", amount: "$149,200", region: "Lagos / JHB" },
@@ -327,6 +367,15 @@ export default function ModeratorAdminPanel({
             }`}
           >
             Audits
+          </button>
+
+          <button
+            onClick={() => onChangeTab("aboutme_mgmt")}
+            className={`px-3 py-1.5 rounded uppercase font-black transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === "aboutme_mgmt" ? "bg-white text-neutral-900 shadow-sm" : "hover:text-neutral-900"
+            }`}
+          >
+            About Me Management
           </button>
         </div>
       </div>
@@ -715,7 +764,7 @@ export default function ModeratorAdminPanel({
                       <div className="flex items-center justify-between gap-3 border-b border-neutral-100 pb-2.5">
                         <div className="flex items-center gap-2.5">
                           <img
-                            src={d.profilePhoto}
+                            src={d.profilePhoto || null}
                             alt={d.fullName}
                             referrerPolicy="no-referrer"
                             className="w-9 h-9 rounded-full object-cover border border-neutral-200"
@@ -827,7 +876,7 @@ export default function ModeratorAdminPanel({
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Bolt vehicle impersonation warning near Westlands"
+                      placeholder="e.g. Rideshare vehicle impersonation warning near Westlands"
                       value={alertTitle}
                       onChange={(e) => setAlertTitle(e.target.value)}
                       className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none rounded px-3 py-2 text-xs font-semibold"
@@ -1080,6 +1129,224 @@ export default function ModeratorAdminPanel({
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === "aboutme_mgmt" && (
+          <div className="space-y-6">
+            <div>
+              <h4 className="font-display font-bold text-neutral-900 text-sm flex items-center gap-1.5 leading-none uppercase tracking-wider">
+                <Users className="w-4 h-4 text-neutral-900" />
+                Founder "About Me" Profile Management
+              </h4>
+              <p className="text-xs text-neutral-450 mt-1.5">
+                Update founder bio, contact details, social URLs, and credential summaries. Changes apply immediately across the public application portal.
+              </p>
+            </div>
+
+            {aboutMeStatusMessage && (
+              <div className="p-3 bg-neutral-900 text-amber-500 rounded-lg text-xs font-mono font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{aboutMeStatusMessage}</span>
+              </div>
+            )}
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                onUpdateAboutMe({
+                  fullName: aboutMeName,
+                  title: aboutMeTitle,
+                  bio: aboutMeBio,
+                  witsProject: aboutMeWits,
+                  passion: aboutMePassion,
+                  leadership: aboutMeLeadership,
+                  phone1: aboutMePhone1,
+                  phone2: aboutMePhone2,
+                  email: aboutMeEmail,
+                  location: aboutMeLocation,
+                  linkedin: aboutMeLinkedin,
+                  profilePhoto: aboutMePhoto,
+                  languages: aboutMeLanguages.split(",").map((l) => l.trim()).filter(Boolean),
+                });
+                setAboutMeStatusMessage("Founder profile configuration compiled and updated successfully!");
+                setTimeout(() => setAboutMeStatusMessage(""), 4000);
+              }}
+              className="space-y-5"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-white border border-neutral-200 rounded-xl p-5 shadow-sm">
+                
+                {/* Full name & Title */}
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Founder Full Name</label>
+                  <input
+                    type="text"
+                    value={aboutMeName}
+                    onChange={(e) => setAboutMeName(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs font-semibold text-neutral-800 focus:outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Professional Title</label>
+                  <input
+                    type="text"
+                    value={aboutMeTitle}
+                    onChange={(e) => setAboutMeTitle(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs font-semibold text-neutral-800 focus:outline-none focus:border-black"
+                  />
+                </div>
+
+                {/* Profile Photo URL */}
+                <div className="md:col-span-2">
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Profile Photo URL</label>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={aboutMePhoto}
+                      onChange={(e) => setAboutMePhoto(e.target.value)}
+                      required
+                      className="flex-1 bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs font-mono text-neutral-800 focus:outline-none focus:border-black"
+                    />
+                    <div className="w-9 h-9 border border-neutral-200 rounded bg-neutral-50 overflow-hidden shrink-0">
+                      <img src={aboutMePhoto || null} alt="preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Biography Textarea */}
+                <div className="md:col-span-2">
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Career Background & Biography</label>
+                  <textarea
+                    rows={4}
+                    value={aboutMeBio}
+                    onChange={(e) => setAboutMeBio(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs text-neutral-800 focus:outline-none focus:border-black leading-relaxed font-medium"
+                  />
+                </div>
+
+                {/* Wits Project contribution */}
+                <div className="md:col-span-2">
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Technology & University Experience (Wits Museum Project)</label>
+                  <textarea
+                    rows={2}
+                    value={aboutMeWits}
+                    onChange={(e) => setAboutMeWits(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs text-neutral-800 focus:outline-none focus:border-black leading-relaxed font-medium"
+                  />
+                </div>
+
+                {/* Passion and interests */}
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Tech Passion & Vision Statement</label>
+                  <textarea
+                    rows={3}
+                    value={aboutMePassion}
+                    onChange={(e) => setAboutMePassion(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs text-neutral-800 focus:outline-none focus:border-black leading-relaxed font-medium"
+                  />
+                </div>
+
+                {/* Leadership and community initiatives */}
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Student Leadership & Achievements</label>
+                  <textarea
+                    rows={3}
+                    value={aboutMeLeadership}
+                    onChange={(e) => setAboutMeLeadership(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs text-neutral-800 focus:outline-none focus:border-black leading-relaxed font-medium"
+                  />
+                </div>
+
+              </div>
+
+              {/* Direct Contact Metrics card */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-white border border-neutral-200 rounded-xl p-5 shadow-sm">
+                
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Primary Phone Number</label>
+                  <input
+                    type="text"
+                    value={aboutMePhone1}
+                    onChange={(e) => setAboutMePhone1(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs font-mono text-neutral-800 focus:outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Secondary Phone Number</label>
+                  <input
+                    type="text"
+                    value={aboutMePhone2}
+                    onChange={(e) => setAboutMePhone2(e.target.value)}
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs font-mono text-neutral-800 focus:outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Direct Email Address</label>
+                  <input
+                    type="email"
+                    value={aboutMeEmail}
+                    onChange={(e) => setAboutMeEmail(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs font-mono text-neutral-800 focus:outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">LinkedIn Profile Link (username path)</label>
+                  <input
+                    type="text"
+                    value={aboutMeLinkedin}
+                    onChange={(e) => setAboutMeLinkedin(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs font-mono text-neutral-800 focus:outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Founder Location & Base</label>
+                  <input
+                    type="text"
+                    value={aboutMeLocation}
+                    onChange={(e) => setAboutMeLocation(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs text-neutral-800 focus:outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[8px] font-black font-mono text-neutral-450 uppercase tracking-widest mb-1.5">Languages (comma separated list)</label>
+                  <input
+                    type="text"
+                    value={aboutMeLanguages}
+                    onChange={(e) => setAboutMeLanguages(e.target.value)}
+                    required
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-xs text-neutral-800 focus:outline-none focus:border-black"
+                  />
+                </div>
+
+              </div>
+
+              {/* Submit triggers */}
+              <div className="flex justify-end gap-3.5 pt-2">
+                <button
+                  type="submit"
+                  className="bg-black text-white hover:bg-neutral-900 font-mono font-black uppercase text-xs tracking-wider px-6 py-3.5 rounded cursor-pointer duration-150 shadow"
+                >
+                  Save Profile Configuration
+                </button>
+              </div>
+
+            </form>
           </div>
         )}
       </div>

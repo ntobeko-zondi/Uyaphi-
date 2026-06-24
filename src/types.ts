@@ -124,7 +124,7 @@ export interface Review {
   rating: number; // 1 - 5
   comment: string;
   tripId?: string;
-  serviceUsed: "Uber" | "Bolt" | "inDrive" | "Yango" | "Local Taxi" | "Other";
+  serviceUsed: "Rideshare" | "Private Transport" | "Local Taxi" | "Other";
   timestamp: string;
 }
 
@@ -155,3 +155,20 @@ export interface SOSActivation {
     event: string;
   }[];
 }
+
+export interface AboutMeData {
+  fullName: string;
+  title: string;
+  bio: string;
+  witsProject: string;
+  passion: string;
+  leadership: string;
+  phone1: string;
+  phone2: string;
+  email: string;
+  location: string;
+  linkedin: string;
+  languages: string[];
+  profilePhoto: string;
+}
+

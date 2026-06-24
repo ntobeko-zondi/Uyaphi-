@@ -6,3 +6,70 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
+
+/* Accessibility classes */
+.text-scale-normal {
+  font-size: 100%;
+}
+
+.text-scale-large {
+  font-size: 115%;
+}
+
+.text-scale-xl {
+  font-size: 130%;
+}
+
+.dyslexic-font {
+  font-family: "JetBrains Mono", Courier, monospace !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.2em !important;
+  line-height: 1.8 !important;
+}
+
+.high-contrast {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-color: #ffffff !important;
+}
+
+.high-contrast * {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.high-contrast button, 
+.high-contrast select, 
+.high-contrast input, 
+.high-contrast textarea {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 3px solid #ffff00 !important;
+  outline: 2px solid #ffffff !important;
+}
+
+.high-contrast button:hover, 
+.high-contrast button:focus {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+.high-contrast a, 
+.high-contrast strong, 
+.high-contrast h1, 
+.high-contrast h2, 
+.high-contrast h3, 
+.high-contrast h4 {
+  color: #ffff00 !important;
+}
+
+/* Custom hexagon clip-path */
+.clip-hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.grid-cols-53 {
+  grid-template-columns: repeat(53, minmax(0, 1fr));
+}
+

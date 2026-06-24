@@ -3,21 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Driver, IncidentReport, IncidentCategory } from "../types";
 import { AFRICAN_COUNTRIES } from "../mockData";
 import {
   AlertTriangle,
   Upload,
   UserCheck,
-  BrainCircuit,
-  Sparkles,
-  Info,
   UserX,
   FileText,
   X,
   Globe,
   MapPin,
+  Search,
+  User,
+  Car,
+  CheckCircle,
 } from "lucide-react";
 
 interface IncidentReportingProps {
@@ -25,6 +26,8 @@ interface IncidentReportingProps {
   selectedCountry: string;
   selectedCity: string;
   onAddReport: (newReport: IncidentReport) => void;
+  prefilledDriverId?: string | null;
+  clearPrefilledDriverId?: () => void;
 }
 
 export default function IncidentReporting({
@@ -32,6 +35,8 @@ export default function IncidentReporting({
   selectedCountry,
   selectedCity,
   onAddReport,
+  prefilledDriverId,
+  clearPrefilledDriverId,
 }: IncidentReportingProps) {
   const [driverId, setDriverId] = useState("");
   const [category, setCategory] = useState<IncidentCategory>("other");
@@ -45,8 +50,56 @@ export default function IncidentReporting({
   const [reportCountryCode, setReportCountryCode] = useState("");
   const [reportCity, setReportCity] = useState("");
 
+  // Enhanced driver search and selection states
+  const [driverSearchQuery, setDriverSearchQuery] = useState("");
+  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const [showDriverDropdown, setShowDriverDropdown] = useState(false);
+  const [isUnlistedDriver, setIsUnlistedDriver] = useState(false);
+
+  // Unlisted driver profile input fields
+  const [unlistedDriverName, setUnlistedDriverName] = useState("");
+  const [unlistedLicensePlate, setUnlistedLicensePlate] = useState("");
+  const [unlistedVehicleDetails, setUnlistedVehicleDetails] = useState("");
+
+  // Submission feedback states
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+
+  useEffect(() => {
+    if (prefilledDriverId) {
+      setDriverId(prefilledDriverId);
+      const drv = drivers.find((d) => d.id === prefilledDriverId);
+      if (drv) {
+        setSelectedDriver(drv);
+        setIsUnlistedDriver(false);
+        setDriverSearchQuery(drv.fullName);
+        const countryObj = AFRICAN_COUNTRIES.find((c) => c.name === drv.operatingCountry);
+        if (countryObj) {
+          setReportCountryCode(countryObj.code);
+          setReportCity(drv.operatingCity);
+        }
+      }
+    } else {
+      // Default to the header values if not prefilled
+      setReportCountryCode(selectedCountry);
+      setReportCity(selectedCity);
+    }
+  }, [prefilledDriverId, selectedCountry, selectedCity, drivers]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowDriverDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -96,69 +149,41 @@ export default function IncidentReporting({
     }
   };
 
-  // AI Classification Status States
-  const [scannerData, setScannerData] = useState<{
-    suggestedCategory: IncidentCategory;
-    toxicityScore: number;
-    sentiment: string;
-    isLikelyFake: boolean;
-    confidence: number;
-    reasoning: string;
-  } | null>(null);
-
-  const [isScanning, setIsScanning] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
-
-  const handleAiScan = async () => {
-    if (!description || description.trim().length < 10) {
-      setStatusMessage("Write at least 10 characters to perform the AI verity scanning.");
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Core validations
+    if (!description.trim()) {
+      setStatusMessage("🚨 Please provide a description of the incident.");
       return;
     }
 
-    setIsScanning(true);
-    setStatusMessage("");
-    setScannerData(null);
-
-    try {
-      const response = await fetch("/api/analyze-incident", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description }),
-      });
-
-      const parsed = await response.json();
-      setScannerData(parsed);
-      
-      // Update local dropdown to match suggested category if confidence is high
-      if (parsed.suggestedCategory && parsed.confidence > 0.8) {
-        setCategory(parsed.suggestedCategory);
-      }
-    } catch (err: any) {
-      console.error("AI scanning failure:", err);
-      setStatusMessage("Unable to route real-time review. Falling back to local heuristics.");
-    } finally {
-      setIsScanning(false);
-    }
-  };
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!description.trim()) return;
-
     if (!reportCountryCode || !reportCity) {
-      setStatusMessage("🚨 ACTION REQUIRED: You must select both Country and City jurisdiction where the incident occurred.");
+      setStatusMessage("🚨 Jurisdiction selection required: Please select Country and City.");
+      return;
+    }
+
+    if (!isUnlistedDriver && !selectedDriver) {
+      setStatusMessage("🚨 Please search and select a driver, or choose 'Unlisted Driver'.");
       return;
     }
 
     const selectedCountryInfo = AFRICAN_COUNTRIES.find((c) => c.code === reportCountryCode);
     const reportCountryName = selectedCountryInfo ? selectedCountryInfo.name : "South Africa";
 
+    // Format description text to include unlisted driver details if applicable
+    let finalDescription = description;
+    if (isUnlistedDriver) {
+      const detailsHeader = `[REPORTED UNLISTED DRIVER]\nName: ${unlistedDriverName || "Unknown"}\nPlate: ${unlistedLicensePlate || "Unknown"}\nVehicle details: ${unlistedVehicleDetails || "Unknown"}\n-----------------------------------\n\n`;
+      finalDescription = detailsHeader + description;
+    }
+
     const newReport: IncidentReport = {
       id: `INC-${Date.now().toString().slice(-4)}`,
-      driverId: driverId || "DRV-UNKNOWN",
+      driverId: isUnlistedDriver ? "DRV-UNLISTED" : (selectedDriver?.id || "DRV-UNKNOWN"),
       userId: isAnonymous ? "ANON-PASSENGER" : "USR-9921",
       category,
-      description,
+      description: finalDescription,
       timestamp: new Date().toISOString(),
       location: {
         city: reportCity,
@@ -170,17 +195,27 @@ export default function IncidentReporting({
       evidenceUrls: evidenceFile ? [evidenceFile] : [],
       isAnonymous,
       status: "pending_review",
-      severity: scannerData?.toxicityScore && scannerData.toxicityScore > 0.7 ? "critical" : "medium",
-      aiClassification: scannerData ? {
-        ...scannerData,
-        isLikelyFake: scannerData.isLikelyFake,
-      } : undefined,
+      severity: "medium",
     };
 
     onAddReport(newReport);
-    
-    // Reset Form
+    setSubmitSuccess(true);
+    setStatusMessage("Your report has been submitted and will be reviewed.");
+
+    // Clean prefilled states if applicable
+    if (clearPrefilledDriverId) {
+      clearPrefilledDriverId();
+    }
+  };
+
+  const handleResetForm = () => {
     setDriverId("");
+    setSelectedDriver(null);
+    setDriverSearchQuery("");
+    setIsUnlistedDriver(false);
+    setUnlistedDriverName("");
+    setUnlistedLicensePlate("");
+    setUnlistedVehicleDetails("");
     setCategory("other");
     setDescription("");
     setLandmark("");
@@ -188,405 +223,454 @@ export default function IncidentReporting({
     setEvidenceFileName("");
     setReportCountryCode("");
     setReportCity("");
-    setScannerData(null);
-    setStatusMessage("Incident audit log compiled and submitted to rideshare moderators.");
+    setSubmitSuccess(false);
+    setStatusMessage("");
   };
 
-  const selectedDriverProfile = drivers.find((d) => d.id === driverId);
+  // Filter drivers based on query
+  const matchingDrivers = drivers.filter((drv) => {
+    const q = driverSearchQuery.toLowerCase();
+    return (
+      drv.fullName.toLowerCase().includes(q) ||
+      drv.vehicle.licensePlate.toLowerCase().includes(q) ||
+      drv.vehicle.make.toLowerCase().includes(q) ||
+      drv.vehicle.model.toLowerCase().includes(q) ||
+      drv.id.toLowerCase().includes(q)
+    );
+  });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="incident-submission-node">
-      {/* Incident Input Form Box */}
-      <div className="lg:col-span-7 bg-white border border-neutral-200 rounded-xl p-6 shadow-sm space-y-5">
-        <div>
-          <h3 className="font-display font-bold text-neutral-905 text-neutral-900 text-base md:text-lg flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-red-650 text-red-600" />
-            File Rideshare Incident Statement
-          </h3>
-          <p className="text-xs text-neutral-400 font-medium mt-1">
-            Log an off-protocol behaviour, plate disparity, harassment or overcharging. Statements are encrypted under global compliance regulations.
-          </p>
-        </div>
-
-        {statusMessage && (
-          <div className="p-3.5 bg-neutral-950 text-white rounded border border-neutral-800 text-xs font-mono font-bold flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-white" />
-            <span>{statusMessage}</span>
+    <div className="max-w-2xl mx-auto font-sans" id="incident-reporting-view">
+      
+      {/* Success View Overlay */}
+      {submitSuccess ? (
+        <div className="bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-2xl p-8 text-center space-y-6 shadow-lg animate-fade-in">
+          <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle className="w-10 h-10" />
           </div>
-        )}
+          <div className="space-y-2">
+            <h3 className="font-display font-black text-neutral-900 dark:text-zinc-100 text-xl uppercase tracking-tight">
+              Report Filed Successfully
+            </h3>
+            <p className="text-sm text-neutral-500 dark:text-zinc-400 max-w-md mx-auto">
+              {statusMessage || "Your report has been submitted and will be reviewed."}
+            </p>
+          </div>
+          <div className="bg-neutral-50 dark:bg-zinc-950 border border-neutral-100 dark:border-zinc-850 p-4 rounded-xl text-[11px] text-left text-neutral-450 text-neutral-500 dark:text-zinc-500 leading-relaxed font-mono">
+            &bull; SafeRide Africa safety moderators review community contributions within 12 hours.<br />
+            &bull; Verified patterns trigger dynamic area alerts to safeguard commuters instantly.
+          </div>
+          <button
+            onClick={handleResetForm}
+            className="w-full bg-black hover:bg-neutral-900 dark:bg-amber-500 dark:hover:bg-amber-600 text-white dark:text-black font-mono font-black py-3 rounded text-xs uppercase duration-150 shadow"
+          >
+            File Another Report
+          </button>
+        </div>
+      ) : (
+        /* Standard Form view */
+        <div className="bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm space-y-5">
+          <div>
+            <h3 className="font-display font-bold text-neutral-900 dark:text-zinc-100 text-base md:text-lg flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              File Ride-Hailing Safety Incident Report
+            </h3>
+            <p className="text-xs text-neutral-400 dark:text-zinc-500 font-medium mt-1">
+              Log plate mismatches, off-app demands, reckless speeds, or harassment. Help protect fellow commuters.
+            </p>
+          </div>
 
-        <form onSubmit={handleFormSubmit} className="space-y-4">
-          {/* Geographic sector selection (Required) */}
-          <div className="bg-neutral-50/70 border border-neutral-200 rounded-xl p-4 space-y-3">
-            <span className="text-[10px] text-neutral-500 font-mono uppercase font-black tracking-widest block leading-none flex items-center gap-1.5">
-              <Globe className="w-4 h-4 text-neutral-600 animate-[spin_8s_linear_infinite]" />
-              Incident Location Jurisdiction *
-            </span>
+          {statusMessage && (
+            <div className="p-3 bg-red-500/10 dark:bg-red-950/20 border border-red-500/20 text-red-700 dark:text-red-400 rounded text-xs font-semibold">
+              {statusMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleFormSubmit} className="space-y-4">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              <div>
-                <label className="block text-[8px] font-black text-neutral-400 uppercase tracking-widest font-mono mb-2">
-                  Country of Incident
-                </label>
-                <div className="relative flex items-center bg-white border border-neutral-200 rounded-lg px-3 py-1 shadow-sm">
-                  <Globe className="w-4 h-4 text-neutral-400 shrink-0 mr-1.5" />
-                  <select
-                    value={reportCountryCode}
-                    onChange={(e) => {
-                      setReportCountryCode(e.target.value);
-                      setReportCity(""); // reset city
-                    }}
-                    required
-                    className="w-full bg-transparent text-xs font-semibold text-neutral-800 outline-none border-none cursor-pointer py-1.5"
-                  >
-                    <option value="" className="text-neutral-400">-- Select Country --</option>
-                    {AFRICAN_COUNTRIES.map((country) => (
-                      <option key={country.code} value={country.code} className="bg-white text-neutral-900">
-                        {country.name}
-                      </option>
-                    ))}
-                  </select>
+            {/* Geographic sector selection (Required) */}
+            <div className="bg-neutral-50/70 dark:bg-zinc-950/70 border border-neutral-200 dark:border-zinc-850 rounded-xl p-4 space-y-3">
+              <span className="text-[10px] text-neutral-500 dark:text-zinc-400 font-mono uppercase font-black tracking-widest block leading-none flex items-center gap-1.5">
+                <Globe className="w-4 h-4 text-neutral-600 dark:text-amber-500" />
+                Incident Location Jurisdiction *
+              </span>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-2">
+                    Country of Incident
+                  </label>
+                  <div className="relative flex items-center bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-lg px-3 py-1 shadow-sm">
+                    <Globe className="w-4 h-4 text-neutral-400 shrink-0 mr-1.5" />
+                    <select
+                      value={reportCountryCode}
+                      onChange={(e) => {
+                        setReportCountryCode(e.target.value);
+                        setReportCity(""); // reset city
+                      }}
+                      required
+                      className="w-full bg-transparent text-xs font-semibold text-neutral-800 dark:text-zinc-200 outline-none border-none cursor-pointer py-1.5"
+                    >
+                      <option value="" className="text-neutral-400 dark:text-zinc-500 bg-white dark:bg-zinc-900">-- Select Country --</option>
+                      {AFRICAN_COUNTRIES.map((country) => (
+                        <option key={country.code} value={country.code} className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">
+                          {country.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-[8px] font-black text-neutral-400 uppercase tracking-widest font-mono mb-2">
-                  City / Metro of Incident
-                </label>
-                <div className="relative flex items-center bg-white border border-neutral-200 rounded-lg px-3 py-1 shadow-sm">
-                  <MapPin className="w-4 h-4 text-neutral-400 shrink-0 mr-1.5" />
-                  <select
-                    value={reportCity}
-                    onChange={(e) => setReportCity(e.target.value)}
-                    required
-                    disabled={!reportCountryCode}
-                    className="w-full bg-transparent text-xs font-semibold text-neutral-800 outline-none border-none cursor-pointer py-1.5 disabled:opacity-50"
-                  >
-                    <option value="" className="text-neutral-400">-- Select City --</option>
-                    {AFRICAN_COUNTRIES.find((c) => c.code === reportCountryCode)?.cities.map((city) => (
-                      <option key={city} value={city} className="bg-white text-neutral-900">
-                        {city} Metro
-                      </option>
-                    ))}
-                  </select>
+                <div>
+                  <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-2">
+                    City / Metro of Incident
+                  </label>
+                  <div className="relative flex items-center bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-lg px-3 py-1 shadow-sm">
+                    <MapPin className="w-4 h-4 text-neutral-400 shrink-0 mr-1.5" />
+                    <select
+                      value={reportCity}
+                      onChange={(e) => setReportCity(e.target.value)}
+                      required
+                      disabled={!reportCountryCode}
+                      className="w-full bg-transparent text-xs font-semibold text-neutral-800 dark:text-zinc-200 outline-none border-none cursor-pointer py-1.5 disabled:opacity-50"
+                    >
+                      <option value="" className="text-neutral-400 dark:text-zinc-500 bg-white dark:bg-zinc-900">-- Select City --</option>
+                      {AFRICAN_COUNTRIES.find((c) => c.code === reportCountryCode)?.cities.map((city) => (
+                        <option key={city} value={city} className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">
+                          {city} Metro
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Associate with specific driver */}
-            <div>
-              <label className="block text-[8px] font-black text-neutral-400 uppercase tracking-widest font-mono mb-2">
-                TARGET PLATE ID / DRIVER DEVIANT
-              </label>
-              <select
-                value={driverId}
-                onChange={(e) => setDriverId(e.target.value)}
-                className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none rounded-lg px-3 py-2.5 text-xs text-neutral-800 font-medium cursor-pointer"
-              >
-                <option value="">-- Unlisted Driver / General Traffic --</option>
-                {drivers.map((drv) => (
-                  <option key={drv.id} value={drv.id}>
-                    {drv.fullName} ({drv.id})
-                  </option>
-                ))}
-              </select>
-              {selectedDriverProfile && (
-                <p className="text-[9px] text-black mt-1.5 font-bold font-mono uppercase bg-neutral-100 border inline-block px-1.5 py-0.5 rounded-sm">
-                  Active Card: {selectedDriverProfile.vehicle.make} &bull; Plate {selectedDriverProfile.vehicle.licensePlate}
-                </p>
+            {/* Target Driver / Vehicle Selector */}
+            <div className="bg-neutral-50/70 dark:bg-zinc-950/70 border border-neutral-200 dark:border-zinc-850 rounded-xl p-4 space-y-3.5">
+              <span className="text-[10px] text-neutral-500 dark:text-zinc-400 font-mono uppercase font-black tracking-widest block leading-none flex items-center gap-1.5">
+                <User className="w-4 h-4 text-neutral-600 dark:text-amber-500" />
+                Target Driver / Vehicle Identification
+              </span>
+
+              {/* Integrated Search Selector */}
+              <div ref={searchContainerRef} className="relative">
+                <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-2">
+                  Search Registered Drivers / Vehicles
+                </label>
+                
+                <div className="relative flex items-center bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-lg px-3 py-1 shadow-sm">
+                  <Search className="w-4 h-4 text-neutral-400 shrink-0 mr-1.5" />
+                  <input
+                    type="text"
+                    placeholder="Search driver name, vehicle brand, or license plate..."
+                    value={driverSearchQuery}
+                    onChange={(e) => {
+                      setDriverSearchQuery(e.target.value);
+                      setShowDriverDropdown(true);
+                      setIsUnlistedDriver(false);
+                    }}
+                    onFocus={() => setShowDriverDropdown(true)}
+                    className="w-full bg-transparent text-xs font-semibold text-neutral-800 dark:text-zinc-200 outline-none border-none py-1.5"
+                  />
+                  {(selectedDriver || isUnlistedDriver) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDriver(null);
+                        setDriverId("");
+                        setDriverSearchQuery("");
+                        setIsUnlistedDriver(false);
+                      }}
+                      className="text-xs text-neutral-400 hover:text-neutral-600 font-bold uppercase tracking-tight"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {/* Dropdown list */}
+                {showDriverDropdown && (
+                  <div className="absolute z-150 top-full left-0 right-0 mt-1 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-lg shadow-lg max-h-56 overflow-y-auto divide-y divide-neutral-150 dark:divide-zinc-850">
+                    {matchingDrivers.map((drv) => (
+                      <button
+                        key={drv.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedDriver(drv);
+                          setDriverId(drv.id);
+                          setDriverSearchQuery(drv.fullName);
+                          setIsUnlistedDriver(false);
+                          setShowDriverDropdown(false);
+                        }}
+                        className="w-full text-left p-3 hover:bg-neutral-50 dark:hover:bg-zinc-950 flex items-center gap-3 transition-colors cursor-pointer"
+                      >
+                        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-neutral-200">
+                          <img src={drv.profilePhoto || null} alt={drv.fullName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h5 className="text-xs font-bold text-neutral-900 dark:text-zinc-100 truncate">{drv.fullName}</h5>
+                          <p className="text-[10px] text-neutral-400 font-mono truncate">
+                            {drv.vehicle.make} {drv.vehicle.model} &bull; Plate {drv.vehicle.licensePlate}
+                          </p>
+                        </div>
+                        <span className="text-[8px] bg-neutral-100 dark:bg-zinc-800 text-neutral-500 px-1.5 py-0.5 rounded font-mono uppercase font-bold shrink-0">
+                          {drv.id}
+                        </span>
+                      </button>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsUnlistedDriver(true);
+                        setSelectedDriver(null);
+                        setDriverId("DRV-UNLISTED");
+                        setDriverSearchQuery("Report Unlisted Driver / Vehicle");
+                        setShowDriverDropdown(false);
+                      }}
+                      className="w-full text-left p-3 hover:bg-amber-500/10 bg-amber-500/5 text-amber-600 dark:text-amber-400 flex items-center gap-2.5 transition-colors cursor-pointer font-bold font-sans text-xs"
+                    >
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                      <span>Driver not found? Report as Unlisted Driver/Vehicle</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Verified Driver Display Card */}
+              {selectedDriver && (
+                <div className="bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-lg p-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border border-neutral-200">
+                    <img src={selectedDriver.profilePhoto || null} alt={selectedDriver.fullName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-bold text-neutral-900 dark:text-zinc-100 flex items-center gap-1.5 leading-none">
+                      {selectedDriver.fullName}
+                      <span className="text-[9px] bg-neutral-100 dark:bg-zinc-800 text-neutral-500 font-mono px-1.5 py-0.5 rounded">
+                        {selectedDriver.id}
+                      </span>
+                    </h5>
+                    <p className="text-[11px] text-neutral-500 dark:text-zinc-400 font-medium mt-1">
+                      {selectedDriver.vehicle.color} {selectedDriver.vehicle.make} {selectedDriver.vehicle.model} &bull; License Plate: <strong className="font-mono text-neutral-900 dark:text-zinc-100">{selectedDriver.vehicle.licensePlate}</strong>
+                    </p>
+                  </div>
+                </div>
               )}
+
+              {/* Unlisted Driver Profile Form */}
+              {isUnlistedDriver && (
+                <div className="bg-white dark:bg-zinc-900 border border-amber-500/20 rounded-lg p-4 space-y-3 shadow-inner">
+                  <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-500 font-extrabold font-mono uppercase tracking-tight">
+                    <Car className="w-4 h-4" />
+                    Unlisted Driver & Vehicle Context
+                  </div>
+                  <p className="text-[10px] text-neutral-400 dark:text-zinc-500 font-semibold leading-relaxed">
+                    Provide any known details about the unregistered driver or vehicle so moderators can track cross-platform records.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-1.5">
+                        Driver Name / Alias
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. John (from app)"
+                        value={unlistedDriverName}
+                        onChange={(e) => setUnlistedDriverName(e.target.value)}
+                        className="w-full bg-neutral-50 dark:bg-zinc-950 border border-neutral-200 dark:border-zinc-800 rounded px-2.5 py-1.5 text-xs text-neutral-800 dark:text-zinc-200 focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-1.5">
+                        License Plate Number
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. CA 123-456"
+                        value={unlistedLicensePlate}
+                        onChange={(e) => setUnlistedLicensePlate(e.target.value)}
+                        className="w-full bg-neutral-50 dark:bg-zinc-950 border border-neutral-200 dark:border-zinc-800 rounded px-2.5 py-1.5 text-xs text-neutral-800 dark:text-zinc-200 font-mono focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-1.5">
+                        Vehicle Brand, Model or Color
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Silver Toyota Avanza, cracked left taillight"
+                        value={unlistedVehicleDetails}
+                        onChange={(e) => setUnlistedVehicleDetails(e.target.value)}
+                        className="w-full bg-neutral-50 dark:bg-zinc-950 border border-neutral-200 dark:border-zinc-800 rounded px-2.5 py-1.5 text-xs text-neutral-800 dark:text-zinc-200 focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
 
             {/* Base Category classification selection */}
             <div>
-              <label className="block text-[8px] font-black text-neutral-400 uppercase tracking-widest font-mono mb-2">
+              <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-2">
                 PROVISIONAL VIOLATION CATEGORY
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as IncidentCategory)}
-                className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none rounded-lg px-3 py-2.5 text-xs text-neutral-800 font-medium cursor-pointer"
+                className="w-full bg-neutral-50 dark:bg-zinc-950 border border-neutral-200 dark:border-zinc-800 focus:border-black dark:focus:border-amber-500 focus:outline-none rounded-lg px-3 py-2.5 text-xs text-neutral-800 dark:text-zinc-200 font-medium cursor-pointer"
               >
-                <option value="unsafe_driving">Unsafe / Reckless Driving Speed</option>
-                <option value="harassment">Verbal / Threatening Harassment</option>
-                <option value="theft">Personal Luggage/Possessions Hijack</option>
-                <option value="fraud">Plate/Vehicle Impersonation Scam</option>
-                <option value="overcharging">Off-App Extra Charges Coercion</option>
-                <option value="vehicle_issues">Deficient/Damaged Cabin Condition</option>
-                <option value="reckless_behavior">Physical Assault or Drunk Actions</option>
-                <option value="accident">Involvement in Traffic Collision</option>
-                <option value="other">Other Protocol Safety Breaches</option>
+                <option value="unsafe_driving" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Unsafe / Reckless Driving Speed</option>
+                <option value="harassment" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Verbal / Threatening Harassment</option>
+                <option value="theft" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Personal Luggage/Possessions Hijack</option>
+                <option value="fraud" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Plate/Vehicle Impersonation Scam</option>
+                <option value="overcharging" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Off-App Extra Charges Coercion</option>
+                <option value="vehicle_issues" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Deficient/Damaged Cabin Condition</option>
+                <option value="reckless_behavior" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Physical Assault or Drunk Actions</option>
+                <option value="accident" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Involvement in Traffic Collision</option>
+                <option value="other" className="bg-white dark:bg-zinc-900 text-neutral-900 dark:text-zinc-100">Other Protocol Safety Breaches</option>
               </select>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-[8px] font-black text-neutral-400 uppercase tracking-widest font-mono mb-2">
-              SECTOR METRO LANDMARK OR CORRIDOR
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Airport Terminals road ramp, or Rosebank Mall east corner, Johannesburg"
-              value={landmark}
-              onChange={(e) => setLandmark(e.target.value)}
-              className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none rounded-lg px-3 py-2.5 text-sm text-neutral-900 font-medium placeholder:text-neutral-400"
-            />
-          </div>
+            <div>
+              <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-2">
+                SECTOR METRO LANDMARK OR CORRIDOR
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Airport Terminals road ramp, or Rosebank Mall east corner, Johannesburg"
+                value={landmark}
+                onChange={(e) => setLandmark(e.target.value)}
+                className="w-full bg-neutral-50 dark:bg-zinc-950 border border-neutral-200 dark:border-zinc-800 focus:border-black dark:focus:border-amber-500 focus:outline-none rounded-lg px-3 py-2.5 text-xs md:text-sm text-neutral-900 dark:text-zinc-100 font-medium placeholder:text-neutral-400 dark:placeholder:text-zinc-500"
+              />
+            </div>
 
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-[8px] font-black text-neutral-400 uppercase tracking-widest font-mono">
+            <div>
+              <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-2">
                 DESCRIPTION OF VEHICLE & DRIVER INFRACTION
               </label>
-              <button
-                type="button"
-                onClick={handleAiScan}
-                disabled={isScanning || !description}
-                className="text-[9px] bg-black hover:bg-neutral-900 text-white px-3 py-1 rounded-sm font-black font-mono uppercase duration-150 inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-sm disabled:opacity-40"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                {isScanning ? "Processing..." : "LAUNCH PRE-PARSER SCAN"}
-              </button>
-            </div>
-            <textarea
-              required
-              rows={4}
-              placeholder="Provide a detailed, objective narrative. Mention exact dialogue, requested payments, route diversions, threatening gestures, or vehicle plates that did not match your e-hailing app booking screen..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-neutral-50 border border-neutral-200 focus:border-black focus:outline-none rounded-lg px-3.5 py-2.5 text-xs text-neutral-900 placeholder:text-neutral-400 font-medium leading-relaxed"
-            />
-            <p className="text-[10px] text-neutral-400 font-medium mt-1.5 italic">
-              Statement pre-parsers automatically flag retaliatory, toxic, or low-context logs to safeguard professional independent drivers.
-            </p>
-          </div>
-
-          {/* Evidence Upload Area */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-            <div>
-              <label className="block text-[8px] font-black text-neutral-400 uppercase tracking-widest font-mono mb-2 flex items-center gap-1">
-                <Upload className="w-3.5 h-3.5 text-neutral-400" />
-                Evidence Photo / Receipt Screenshot
-              </label>
-              <div
-                className={`bg-neutral-50 border-2 border-dashed rounded-lg p-4 cursor-pointer transition-all duration-150 relative text-center flex flex-col items-center justify-center min-h-[96px] ${
-                  dragActive ? "border-black bg-neutral-100" : "border-neutral-200 hover:border-black"
-                }`}
-                onDragEnter={handleDrag}
-                onDragOver={handleDrag}
-                onDragLeave={handleDrag}
-                onDrop={handleDrop}
-                onClick={triggerFileBrowser}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleChange}
-                  className="hidden"
-                  accept="image/*,application/pdf,.csv,.doc,.docx,.txt"
-                />
-                
-                {evidenceFile ? (
-                  <div className="flex flex-col items-center justify-center w-full h-full gap-2 relative">
-                    {evidenceFile.startsWith("data:image/") ? (
-                      <div className="relative w-16 h-16 rounded border border-neutral-200 overflow-hidden bg-neutral-100 shadow-sm">
-                        <img
-                          src={evidenceFile}
-                          alt="Evidence preview"
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 bg-neutral-100 rounded border border-neutral-200 flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-neutral-500" />
-                      </div>
-                    )}
-                    <span className="text-xs font-mono font-bold text-neutral-800 max-w-[180px] truncate block">
-                      {evidenceFileName || "Uploaded File"}
-                    </span>
-                    
-                    <button
-                      type="button"
-                      onClick={removeFile}
-                      className="absolute -top-1 -right-1 p-1 bg-red-650 bg-red-600 hover:bg-red-700 text-white rounded-full transition-all cursor-pointer shadow-sm"
-                      title="Remove file"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <Upload className="w-6 h-6 text-neutral-400 mb-1" />
-                    <span className="block text-[10px] font-mono font-black text-neutral-600 uppercase tracking-wider leading-none">
-                      Drag & Drop File Here
-                    </span>
-                    <span className="block text-[9px] text-neutral-400 font-bold mt-1.5 uppercase tracking-tight">
-                      Or click to browse from system
-                    </span>
-                  </>
-                )}
-              </div>
+              <textarea
+                required
+                rows={5}
+                placeholder="Provide a detailed, objective narrative. Mention exact dialogue, requested payments, route diversions, threatening gestures, or vehicle plates that did not match your e-hailing app booking screen..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full bg-neutral-50 dark:bg-zinc-950 border border-neutral-200 dark:border-zinc-800 focus:border-black dark:focus:border-amber-500 focus:outline-none rounded-lg px-3.5 py-2.5 text-xs text-neutral-900 dark:text-zinc-100 placeholder:text-neutral-400 dark:placeholder:text-zinc-500 font-medium leading-relaxed"
+              />
             </div>
 
-            {/* Anonymous Toggle Switch */}
-            <div className="flex items-center justify-between p-4 bg-neutral-50 border border-neutral-200 rounded-lg">
-              <div className="space-y-0.5">
-                <span className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
-                  <UserX className="w-4 h-4 text-neutral-500" />
-                  De-identify Passenger profile
-                </span>
-                <p className="text-[10px] text-neutral-400 font-medium leading-none">Logs remain high-verity but anonymous</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAnonymous(!isAnonymous)}
-                className={`w-11 h-6 rounded-full transition-colors relative focus:outline-none cursor-pointer ${
-                  isAnonymous ? "bg-black" : "bg-neutral-200"
-                }`}
-              >
-                <span
-                  className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${
-                    isAnonymous ? "translate-x-5" : ""
+            {/* Evidence Upload Area */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div>
+                <label className="block text-[8px] font-black text-neutral-400 dark:text-zinc-500 uppercase tracking-widest font-mono mb-2 flex items-center gap-1">
+                  <Upload className="w-3.5 h-3.5 text-neutral-400 dark:text-zinc-500" />
+                  Evidence Photo / Receipt Screenshot
+                </label>
+                <div
+                  className={`bg-neutral-50 dark:bg-zinc-950 border-2 border-dashed rounded-lg p-4 cursor-pointer transition-all duration-150 relative text-center flex flex-col items-center justify-center min-h-[96px] ${
+                    dragActive ? "border-black dark:border-amber-500 bg-neutral-100 dark:bg-zinc-900" : "border-neutral-200 dark:border-zinc-800 hover:border-black dark:hover:border-amber-500"
                   }`}
-                />
+                  onDragEnter={handleDrag}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDrop={handleDrop}
+                  onClick={triggerFileBrowser}
+                >
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleChange}
+                    className="hidden"
+                    accept="image/*,application/pdf,.csv,.doc,.docx,.txt"
+                  />
+                  
+                  {evidenceFile ? (
+                    <div className="flex flex-col items-center justify-center w-full h-full gap-2 relative">
+                      {evidenceFile.startsWith("data:image/") ? (
+                        <div className="relative w-16 h-16 rounded border border-neutral-200 dark:border-zinc-800 overflow-hidden bg-neutral-100 dark:bg-zinc-900 shadow-sm">
+                          <img
+                            src={evidenceFile || null}
+                            alt="Evidence preview"
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 bg-neutral-100 dark:bg-zinc-900 rounded border border-neutral-200 dark:border-zinc-800 flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-neutral-500 dark:text-zinc-400" />
+                        </div>
+                      )}
+                      <span className="text-xs font-mono font-bold text-neutral-800 dark:text-zinc-200 max-w-[180px] truncate block">
+                        {evidenceFileName || "Uploaded File"}
+                      </span>
+                      
+                      <button
+                        type="button"
+                        onClick={removeFile}
+                        className="absolute -top-1 -right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full transition-all cursor-pointer shadow-sm"
+                        title="Remove file"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-6 h-6 text-neutral-400 dark:text-zinc-500 mb-1" />
+                      <span className="block text-[10px] font-mono font-black text-neutral-600 dark:text-zinc-400 uppercase tracking-wider leading-none">
+                        Drag & Drop File Here
+                      </span>
+                      <span className="block text-[9px] text-neutral-450 text-neutral-400 dark:text-zinc-500 font-bold mt-1.5 uppercase tracking-tight">
+                        Or click to browse from system
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Anonymous Toggle Switch */}
+              <div className="flex flex-col justify-between p-4 bg-neutral-50 dark:bg-zinc-950 border border-neutral-200 dark:border-zinc-800 rounded-lg">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-neutral-800 dark:text-zinc-200 flex items-center gap-1.5" id="de-identify-passenger-label">
+                      <UserX className="w-4 h-4 text-neutral-500 dark:text-zinc-400" />
+                      De-identify Passenger Profile
+                    </span>
+                    <p className="text-[10px] text-neutral-400 dark:text-zinc-500 leading-relaxed font-semibold pr-1">
+                      Omits your real name, email, and avatar from publicly visible community reports. Safety moderators verify all metrics securely to guarantee high reliability without displaying personal data.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAnonymous(!isAnonymous)}
+                    className={`w-11 h-6 rounded-full transition-colors relative focus:outline-none shrink-0 cursor-pointer ${
+                      isAnonymous ? "bg-black dark:bg-amber-500" : "bg-neutral-200 dark:bg-zinc-800"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1 left-1 bg-white dark:bg-zinc-950 w-4 h-4 rounded-full transition-transform ${
+                        isAnonymous ? "translate-x-5" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="submit"
+                className="flex-1 bg-black hover:bg-neutral-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-mono font-black py-4 px-4 rounded text-xs uppercase tracking-wider duration-150 shadow-md cursor-pointer"
+              >
+                Submit
               </button>
             </div>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button
-              type="submit"
-              className="flex-1 bg-black hover:bg-neutral-900 text-white font-mono font-black py-4 px-4 rounded text-xs uppercase duration-150 shadow-md cursor-pointer"
-            >
-              COMPILE AND DEPLOY AUDIT STATEMENT
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Dynamic AI Analysis Inspection Screen */}
-      <div className="lg:col-span-5 flex flex-col justify-between">
-        {scannerData ? (
-          <div className="bg-white border border-neutral-200 rounded-xl shadow-sm overflow-hidden divide-y divide-neutral-150 h-full">
-            {/* AI Scanning header */}
-            <div className="p-5 bg-black text-white flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-neutral-900 border border-neutral-800 text-white rounded flex items-center justify-center">
-                <BrainCircuit className="w-5 h-5 text-neutral-200" />
-              </div>
-              <div>
-                <span className="text-[8px] font-black text-neutral-400 font-mono uppercase tracking-widest leading-none">
-                  COGNITIVE RECONSTRUCT CORE
-                </span>
-                <h4 className="font-display font-medium text-white text-sm md:text-base mt-2 leading-none">
-                  AI Verity Classifier
-                </h4>
-              </div>
-            </div>
-
-            {/* Smart Classification Metrics gauges */}
-            <div className="p-5 space-y-4 bg-white">
-              <div className="grid grid-cols-2 gap-3.5 text-neutral-700">
-                {/* Sentiment Meter */}
-                <div className="bg-neutral-50 border border-neutral-200 p-3.5 rounded">
-                  <span className="text-[8px] text-neutral-400 font-black font-mono uppercase block">EMOTION DENSITY</span>
-                  <span className="text-xs font-bold text-neutral-850 text-neutral-800 uppercase tracking-tight mt-1.5 inline-block font-mono">
-                    {scannerData.sentiment}
-                  </span>
-                </div>
-
-                {/* AI Predicted Category */}
-                <div className="bg-neutral-50 border border-neutral-200 p-3.5 rounded">
-                  <span className="text-[8px] text-neutral-400 font-black font-mono uppercase block">CLASSIFIED COMPLIANCE</span>
-                  <span className="text-xs font-bold text-neutral-850 text-neutral-800 uppercase tracking-tight mt-1.5 inline-block font-mono truncate max-w-[120px]">
-                    {scannerData.suggestedCategory.replace("_", " ")}
-                  </span>
-                </div>
-              </div>
-
-              {/* Toxicity gauge */}
-              <div>
-                <div className="flex justify-between items-center text-xs text-neutral-700 font-bold font-sans">
-                  <span>Adversarial/Toxicity Index</span>
-                  <span className="font-mono text-red-600 font-black">
-                    {(scannerData.toxicityScore * 100).toFixed(0)}%
-                  </span>
-                </div>
-                <div className="h-1.5 bg-neutral-100 rounded-full mt-2 overflow-hidden border border-neutral-200/50">
-                  <div
-                    style={{ width: `${scannerData.toxicityScore * 100}%` }}
-                    className={`h-full rounded-full ${
-                      scannerData.toxicityScore > 0.7
-                        ? "bg-red-650 bg-red-600"
-                        : "bg-black"
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {/* AI Confidence gauge */}
-              <div>
-                <div className="flex justify-between items-center text-xs text-neutral-700 font-bold font-sans">
-                  <span>Pattern Classification Confidence</span>
-                  <span className="font-mono text-black font-black">
-                    {(scannerData.confidence * 100).toFixed(0)}%
-                  </span>
-                </div>
-                <div className="h-1.5 bg-neutral-100 rounded-full mt-2 overflow-hidden border border-neutral-200/50">
-                  <div
-                    style={{ width: `${scannerData.confidence * 100}%` }}
-                    className="h-full bg-neutral-850 bg-black rounded-full"
-                  />
-                </div>
-              </div>
-
-              {/* Spam warning indicators */}
-              <div
-                className={`p-4 rounded border flex gap-3 items-start text-xs leading-relaxed ${
-                  scannerData.isLikelyFake
-                    ? "bg-red-50/50 border-red-200 text-red-900"
-                    : "bg-neutral-50 border-neutral-200 text-neutral-800"
-                }`}
-              >
-                <Info className="w-4.5 h-4.5 shrink-0 mt-0.5 text-neutral-550" />
-                <div>
-                  <span className="font-mono font-black tracking-widest uppercase text-[8px] leading-none block">
-                    {scannerData.isLikelyFake ? "SUSPICIOUS COMPOSITION VETO" : "RECORD VALIDATED"}
-                  </span>
-                  <p className="mt-1.5 text-[11px] font-sans font-medium">
-                    {scannerData.isLikelyFake
-                      ? "Warning: Report payload possesses low contextual density or structural repetition traits typical of falsified reviews."
-                      : "Semantic structure verified. Narrated safety patterns and corridors correlate with historical sector activity data."}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Behind the prompt explanation */}
-            <div className="p-5 bg-neutral-950 text-white text-[11px]">
-              <h5 className="font-mono font-black text-neutral-300 uppercase tracking-wide flex items-center gap-1.5">
-                <BrainCircuit className="w-3.5 h-3.5 text-neutral-400" />
-                AI COGNITIVE DIRECTIVE LOGIC
-              </h5>
-              <p className="text-neutral-400 font-sans font-medium mt-2.5 leading-relaxed">
-                {scannerData.reasoning}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white border-2 border-dashed border-neutral-350 border-neutral-300 rounded-xl text-center p-8 flex flex-col justify-center items-center h-[460px] shadow-sm">
-            <span className="w-10 h-10 bg-black text-white hover:bg-neutral-800 rounded flex items-center justify-center font-bold font-mono text-sm leading-none select-none mb-4 animate-[pulse_3s_infinite]">
-              AI
-            </span>
-            <h4 className="font-display font-bold text-neutral-800 text-xs uppercase tracking-wide">Gemini Cognitive Auditor</h4>
-            <p className="text-xs text-neutral-400 mt-2 max-w-xs leading-normal font-medium mx-auto">
-              Draft your ride-hailing narrative on the left panel, then hit <strong>LAUNCH PRE-PARSER SCAN</strong>. Gemini will analyze toxicity, identify spam signals, and assist core moderators.
-            </p>
-          </div>
-        )}
-      </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
