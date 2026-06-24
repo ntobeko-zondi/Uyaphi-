@@ -2,8 +2,6 @@
 
 <div align="center">
 
-<img src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" width="900" alt="SafeRide Africa"/>
-
 ### Know Before You Go
 
 A community-powered transportation safety and driver verification platform.
