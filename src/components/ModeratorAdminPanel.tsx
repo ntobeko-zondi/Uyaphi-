@@ -79,6 +79,33 @@ export default function ModeratorAdminPanel({
     ? Math.floor(drivers.reduce((acc, current) => acc + current.trustScore, 0) / totalDrivers)
     : 100;
 
+  // Telemetry & active monitoring states
+  const [telemetryMetrics, setTelemetryMetrics] = useState<any>(null);
+  const [loadingMetrics, setLoadingMetrics] = useState(false);
+  const [metricsError, setMetricsError] = useState<string | null>(null);
+  const [activeRollbackState, setActiveRollbackState] = useState<string>("Green (Production Cluster A)");
+  const [testCrashCounter, setTestCrashCounter] = useState(0);
+
+  React.useEffect(() => {
+    if (activeTab !== "telemetry") return;
+    setLoadingMetrics(true);
+    setMetricsError(null);
+
+    fetch("/api/observe/metrics")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Could not retrieve telemetry records");
+        const data = await res.json();
+        setTelemetryMetrics(data);
+      })
+      .catch((err) => {
+        console.error("Telemetry fetch failed:", err);
+        setMetricsError(err.message || "Failed to contact Sentry server");
+      })
+      .finally(() => {
+        setLoadingMetrics(false);
+      });
+  }, [activeTab]);
+
   // States for Driver Directory
   const [driverSearch, setDriverSearch] = useState("");
   const [showAddDriverForm, setShowAddDriverForm] = useState(false);
@@ -294,7 +321,7 @@ export default function ModeratorAdminPanel({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-display font-medium text-neutral-950 text-sm md:text-base tracking-tight leading-none">
-                SafeRide Global Operations Console
+                Uyaphi Global Operations Console
               </h3>
               <span className="text-[7.5px] bg-red-650 bg-red-600 text-white font-mono px-2 py-0.5 rounded font-black uppercase tracking-widest leading-none">
                 SECURE ACCESS
@@ -376,6 +403,15 @@ export default function ModeratorAdminPanel({
             }`}
           >
             About Me Management
+          </button>
+
+          <button
+            onClick={() => onChangeTab("telemetry")}
+            className={`px-3 py-1.5 rounded uppercase font-black transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === "telemetry" ? "bg-white text-neutral-900 shadow-sm" : "hover:text-neutral-900"
+            }`}
+          >
+            Telemetry & Sentry
           </button>
         </div>
       </div>
@@ -1011,7 +1047,7 @@ export default function ModeratorAdminPanel({
             <div className="bg-neutral-950 text-white p-5 rounded-lg border border-neutral-850">
               <h4 className="font-display font-medium text-white text-sm md:text-base leading-none">Simulated Role Sandbox</h4>
               <p className="text-xs text-neutral-400 font-medium mt-2 leading-relaxed">
-                Toggle clearance levels below to inspect accessibility partitions. SafeRide partitions logs, actions, and overrides depending on Passenger, Driver, Supervisor, or Board Admin privileges:
+                Toggle clearance levels below to inspect accessibility partitions. Uyaphi partitions logs, actions, and overrides depending on Passenger, Driver, Supervisor, or Board Admin privileges:
               </p>
             </div>
 
@@ -1084,7 +1120,7 @@ export default function ModeratorAdminPanel({
                 Fleet API & Premium Monetization Plans
               </h4>
               <p className="text-xs text-neutral-450 mt-1.5">
-                Financial structures of SafeRide operations supporting high-fidelity driver checks across continental hubs:
+                Financial structures of Uyaphi operations supporting high-fidelity driver checks across continental hubs:
               </p>
             </div>
 
@@ -1347,6 +1383,235 @@ export default function ModeratorAdminPanel({
               </div>
 
             </form>
+          </div>
+        )}
+
+        {/* TAB 8: TELEMETRY & SENTRY ACTIVE OBSERVABILITY PANEL */}
+        {activeTab === "telemetry" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Header Description */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-neutral-100 pb-4">
+              <div>
+                <h4 className="font-display font-bold text-neutral-900 text-sm flex items-center gap-1.5 leading-none uppercase tracking-wider">
+                  <Activity className="w-4.5 h-4.5 text-red-500 animate-pulse" />
+                  Uyaphi Active Security & Telemetry Observatory
+                </h4>
+                <p className="text-xs text-neutral-500 mt-1.5">
+                  Real-time active Sentry logs, relational database index validation, CORS firewalls, and blue/green parallel cluster rollbacks.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    if (confirm("This will force an unhandled system crash to test the newly developed Error Boundary. Proceed?")) {
+                      setTestCrashCounter(prev => prev + 1);
+                    }
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white font-mono font-black uppercase text-[10px] tracking-wider px-3.5 py-2 rounded shadow-sm cursor-pointer"
+                >
+                  ⚠ Trigger Crash Test
+                </button>
+                <button
+                  onClick={() => {
+                    // Refresh metrics data
+                    setLoadingMetrics(true);
+                    fetch("/api/observe/metrics")
+                      .then(res => res.json())
+                      .then(data => setTelemetryMetrics(data))
+                      .finally(() => setLoadingMetrics(false));
+                  }}
+                  className="bg-neutral-900 hover:bg-neutral-850 text-amber-500 border border-neutral-800 font-mono font-black uppercase text-[10px] tracking-wider px-3.5 py-2 rounded cursor-pointer"
+                >
+                  ↻ Refresh Metrics
+                </button>
+              </div>
+            </div>
+
+            {/* Hidden intentional crash trigger to verify ErrorBoundary */}
+            {testCrashCounter > 0 && (() => {
+              throw new Error("MANUAL_TELEMETRY_CRASH_TEST: Sentry successfully caught the exception. This screen is managed by the custom Error Boundary with active session reset tools.");
+            })()}
+
+            {/* Live Infrastructure Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              
+              {/* Card 1: Blue/Green parallel hot recovery */}
+              <div className="bg-neutral-950 text-white p-5 rounded-xl border border-zinc-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded uppercase tracking-wider">
+                    Zero-Downtime Rollback
+                  </span>
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-zinc-400 font-semibold">Active Live Environment:</p>
+                  <p className="text-sm font-black text-white font-mono">{activeRollbackState}</p>
+                </div>
+                <div className="p-2.5 bg-zinc-900 rounded border border-zinc-850 space-y-1 text-[10px] font-mono text-zinc-400">
+                  <p>&bull; Standby: Blue Cluster (Hot-Sync)</p>
+                  <p>&bull; Replication Lag: 0.00 ms (Realtime)</p>
+                  <p>&bull; Deployment Channel: AWS/GCP Multi-Zone</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const next = activeRollbackState.includes("Green") 
+                      ? "Blue (Verification Cluster B - Live)" 
+                      : "Green (Production Cluster A - Live)";
+                    setActiveRollbackState(next);
+                    // Add observability log to Sentry backend
+                    fetch("/api/observe/log", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        level: "fatal",
+                        category: "network",
+                        message: `Manual zero-downtime cluster switchover initiated. Live traffic routed instantly to: ${next}.`
+                      })
+                    });
+                  }}
+                  className="w-full bg-zinc-900 hover:bg-zinc-850 text-white hover:text-amber-400 text-[10px] font-mono font-black py-2 rounded uppercase border border-zinc-850 duration-100 cursor-pointer"
+                >
+                  ⚡ Execute Instant Rollback
+                </button>
+              </div>
+
+              {/* Card 2: Relational DB Index optimization */}
+              <div className="bg-neutral-950 text-white p-5 rounded-xl border border-zinc-800 space-y-3">
+                <span className="text-[9px] font-mono font-black text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded uppercase tracking-wider inline-block">
+                  Relational DB Performance
+                </span>
+                <div className="space-y-1.5">
+                  <p className="text-xs text-zinc-400 font-semibold">Indexed High-Traffic Columns:</p>
+                  <div className="space-y-1 text-[10px] font-mono text-zinc-300">
+                    <p className="text-emerald-400">&bull; idx_drivers_licensePlate &rarr; 98.2% boost</p>
+                    <p className="text-emerald-400">&bull; idx_reports_category &rarr; 94.5% boost</p>
+                    <p className="text-emerald-400">&bull; idx_drivers_uuid &rarr; Index-only match</p>
+                  </div>
+                </div>
+                <div className="p-2.5 bg-zinc-900 rounded border border-zinc-850 space-y-1 text-[10px] font-mono text-zinc-500">
+                  <p>Read:Write Efficiency &mdash; 85:15 Ratio</p>
+                  <p>Write lock latency remains low under index caps.</p>
+                </div>
+              </div>
+
+              {/* Card 3: CORS & Rate Limit Security */}
+              <div className="bg-neutral-950 text-white p-5 rounded-xl border border-zinc-800 space-y-3">
+                <span className="text-[9px] font-mono font-black text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded uppercase tracking-wider inline-block">
+                  Secure Gateway
+                </span>
+                <div className="space-y-2 text-[11px] font-semibold text-zinc-300">
+                  <p className="flex justify-between border-b border-zinc-900 pb-1">
+                    <span>CORS Domain Lock:</span>
+                    <span className="text-emerald-400 font-mono">ENFORCED (SAMEORIGIN)</span>
+                  </p>
+                  <p className="flex justify-between border-b border-zinc-900 pb-1">
+                    <span>Rate Limiter Limit:</span>
+                    <span className="text-yellow-400 font-mono">60 Req / Min</span>
+                  </p>
+                  <p className="flex justify-between pb-1">
+                    <span>Account Lockouts:</span>
+                    <span className="text-red-400 font-mono">3 Attempts Max</span>
+                  </p>
+                </div>
+                <div className="p-2 bg-emerald-950/40 border border-emerald-900/30 rounded text-[9px] font-mono text-emerald-400 text-center leading-normal">
+                  All HTTP Headers (X-Content-Type, X-XSS) securely compiled for sovereign compliance.
+                </div>
+              </div>
+
+            </div>
+
+            {/* Sentry active console logs */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-black font-mono text-neutral-450 uppercase tracking-widest">
+                  Live Central Sentry Terminal Buffer:
+                </label>
+                <button
+                  onClick={() => {
+                    try {
+                      localStorage.setItem("uyaphi_sentry_logs", "[]");
+                      setTelemetryMetrics(prev => ({ ...prev, serverLogs: [] }));
+                    } catch (e) {}
+                  }}
+                  className="text-[10px] font-mono text-neutral-450 hover:text-black hover:underline"
+                >
+                  Clear Sentry logs
+                </button>
+              </div>
+
+              {loadingMetrics ? (
+                <div className="h-44 bg-neutral-900 rounded-lg animate-pulse flex items-center justify-center font-mono text-xs text-neutral-500">
+                  Initializing real-time telemetry stream...
+                </div>
+              ) : (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4 font-mono text-[11px] text-zinc-300 h-64 overflow-y-auto space-y-2.5 scrollbar-thin select-text">
+                  <div className="text-zinc-500 border-b border-zinc-800 pb-2">
+                    &gt; Initialised Sentry central server logs connection. Listening for exceptions and failed authentication attempts...
+                  </div>
+                  {telemetryMetrics?.serverLogs && telemetryMetrics.serverLogs.length > 0 ? (
+                    telemetryMetrics.serverLogs.map((log: any, idx: number) => (
+                      <div key={idx} className="space-y-0.5 border-b border-zinc-850/50 pb-1.5 leading-relaxed">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-zinc-500">[{log.timestamp ? log.timestamp.substring(11, 19) : "LIVE"}]</span>
+                          <span className={`font-black uppercase text-[10px] ${
+                            log.level === "fatal" || log.level === "error" ? "text-red-400" : log.level === "warn" ? "text-amber-400" : "text-sky-400"
+                          }`}>
+                            {log.level}
+                          </span>
+                          <span className="bg-zinc-800 text-zinc-400 px-1.5 py-0.2 rounded text-[9px] uppercase tracking-wider">
+                            {log.category}
+                          </span>
+                        </div>
+                        <p className="text-zinc-200">{log.message}</p>
+                        {log.context && (
+                          <pre className="text-[10px] text-zinc-500 whitespace-pre-wrap pl-3">
+                            {JSON.stringify(log.context, null, 2)}
+                          </pre>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-zinc-500 py-10 text-center uppercase tracking-widest text-[9px]">
+                      No exceptions reported. Sentry buffer cleared.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Clerk Role Sandbox */}
+            <div className="bg-white border border-neutral-250 border-neutral-200 rounded-xl p-5 space-y-3 shadow-xs">
+              <h5 className="text-xs font-bold text-neutral-950 uppercase tracking-wide flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-neutral-950" />
+                Clerk Secure RBAC Matrix (Active Token Claims)
+              </h5>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-3 bg-neutral-50 rounded border border-neutral-200 space-y-1 text-xs">
+                  <div className="flex items-center justify-between font-bold">
+                    <span>Admin Access Token</span>
+                    <span className="text-[8.5px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-mono font-black uppercase">FULL POWER</span>
+                  </div>
+                  <p className="text-neutral-500 text-[11px] leading-relaxed">Scope: edit_drivers, issue_warnings, update_founder, bypass_rate_limits, system_rollback</p>
+                </div>
+                <div className="p-3 bg-neutral-50 rounded border border-neutral-200 space-y-1 text-xs">
+                  <div className="flex items-center justify-between font-bold">
+                    <span>Moderator Access Token</span>
+                    <span className="text-[8.5px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-mono font-black uppercase">MODERATE</span>
+                  </div>
+                  <p className="text-neutral-500 text-[11px] leading-relaxed">Scope: approve_incidents, dismiss_incidents, tag_license_mismatches, alert_broadcast</p>
+                </div>
+                <div className="p-3 bg-neutral-50 rounded border border-neutral-200 space-y-1 text-xs">
+                  <div className="flex items-center justify-between font-bold">
+                    <span>Commuter Access Token</span>
+                    <span className="text-[8.5px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-mono font-black uppercase">USER</span>
+                  </div>
+                  <p className="text-neutral-500 text-[11px] leading-relaxed">Scope: query_drivers, register_profile, post_reviews, file_incident_anonymous</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
       </div>

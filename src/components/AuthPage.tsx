@@ -11,10 +11,19 @@ export default function AuthPage({ onLogin, onAdminLogin }: AuthPageProps) {
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   
-  // Normal User inputs
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  // Normal User inputs with form data persistence on refresh
+  const [email, setEmail] = useState(() => localStorage.getItem("uyaphi_draft_email") || "");
+  const [name, setName] = useState(() => localStorage.getItem("uyaphi_draft_name") || "");
   const [password, setPassword] = useState("");
+  
+  // Save form entries to storage dynamically
+  React.useEffect(() => {
+    localStorage.setItem("uyaphi_draft_email", email);
+  }, [email]);
+
+  React.useEffect(() => {
+    localStorage.setItem("uyaphi_draft_name", name);
+  }, [name]);
   
   // Admin inputs
   const [adminUsername, setAdminUsername] = useState("");
@@ -217,7 +226,7 @@ export default function AuthPage({ onLogin, onAdminLogin }: AuthPageProps) {
                 ? "Authenticate admin credentials" 
                 : isSignUp 
                   ? "Register Safety Profile" 
-                  : "Begin SafeRide Journey"}
+                  : "Begin Uyaphi Journey"}
             </span>
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -227,7 +236,7 @@ export default function AuthPage({ onLogin, onAdminLogin }: AuthPageProps) {
         <div className="mt-6 pt-4 border-t border-zinc-850 text-center space-y-3">
           {!isAdminMode && (
             <p className="text-xs text-zinc-500">
-              {isSignUp ? "Already registered?" : "New to SafeRide Africa?"}{" "}
+              {isSignUp ? "Already registered?" : "New to Uyaphi?"}{" "}
               <button
                 onClick={() => {
                   setIsSignUp(!isSignUp);

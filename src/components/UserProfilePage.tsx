@@ -77,7 +77,7 @@ export default function UserProfilePage({
             </div>
 
             <p className="text-[10px] text-zinc-500 leading-relaxed pt-2 font-mono">
-              Member ID: SRA-{trustScore}-{streakDays}-{userName.substring(0, 3).toUpperCase()}
+              Member ID: UYA-{trustScore}-{streakDays}-{userName.substring(0, 3).toUpperCase()}
             </p>
           </div>
 
@@ -189,7 +189,7 @@ export default function UserProfilePage({
                     <span className="text-xs text-zinc-500">Level Progression</span>
                   </div>
                   <p className="text-[11px] text-zinc-400 leading-relaxed pt-1 border-t border-zinc-850/40 mt-2">
-                    Combined experience points accrued through active platform contributions. Higher XP unlocks SRA Certified Credentials.
+                    Combined experience points accrued through active platform contributions. Higher XP unlocks Uyaphi Certified Credentials.
                   </p>
                 </div>
 
@@ -199,10 +199,10 @@ export default function UserProfilePage({
               <div className="p-5 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
                 <h4 className="text-xs font-mono font-bold text-amber-500 uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
                   <Shield className="w-4 h-4 shrink-0" />
-                  SRA SECURE IDENTITY MANDATE
+                  UYAPHI SECURE IDENTITY MANDATE
                 </h4>
                 <p className="text-xs text-zinc-300 leading-relaxed">
-                  Your SafeRide Africa profile operates completely detached from personal commercial ridesharing identifiers. SRA does not share any transit verification audits or user logs with external transport aggregators to respect user privacy and adhere strictly to regional POPIA constraints.
+                  Your Uyaphi profile operates completely detached from personal commercial ridesharing identifiers. Uyaphi does not share any transit verification audits or user logs with external transport aggregators to respect user privacy and adhere strictly to regional POPIA constraints.
                 </p>
               </div>
             </div>
@@ -221,7 +221,7 @@ export default function UserProfilePage({
                       </div>
                       <div>
                         <p className="font-mono font-bold text-white">License Plate Audited: {query}</p>
-                        <p className="text-[10px] text-zinc-500 mt-0.5">Cross-referenced SRA Driver registry for state compliance</p>
+                        <p className="text-[10px] text-zinc-500 mt-0.5">Cross-referenced Uyaphi Driver registry for state compliance</p>
                       </div>
                     </div>
                     <span className="text-[10px] text-zinc-500 font-mono">2026-06-24</span>

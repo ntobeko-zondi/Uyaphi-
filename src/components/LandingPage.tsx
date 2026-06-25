@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "../utils/translations";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Shield,
@@ -179,6 +180,7 @@ export default function LandingPage({
   highContrast,
   onSearchClick,
 }: LandingPageProps) {
+  const { t } = useTranslation();
   const [activeSearchTab, setActiveSearchTab] = useState<"driver" | "plate" | "vehicle">("driver");
   const [searchVal, setSearchVal] = useState("");
   const [authRequiredMsg, setAuthRequiredMsg] = useState<string | null>(null);
@@ -195,8 +197,9 @@ export default function LandingPage({
 
     if (!isLoggedIn) {
       // Trigger Authentication Modal logic or display message
-      setAuthRequiredMsg("Create an account or sign in to access SafeRide Africa's verification network.");
-      speak("Authentication required. Create an account or sign in to access SafeRide Africa's verification network.");
+      const msg = t("authRequiredMsg") || "Create an account or sign in to access Uyaphi's verification network.";
+      setAuthRequiredMsg(msg);
+      speak(msg);
       onLoginClick(); // Calls parent login modal prompt
       return;
     }
@@ -217,7 +220,8 @@ export default function LandingPage({
     const nextState = !voiceAssist;
     setVoiceAssist(nextState);
     if (nextState) {
-      speak("Voice guidance enabled. SafeRide Africa will assist your hands-free navigation.");
+      const msg = t("voiceGuidanceEnabledMsg") || "Voice guidance enabled. Uyaphi will assist your hands-free navigation.";
+      speak(msg);
     } else {
       if (typeof window !== "undefined" && window.speechSynthesis) {
         window.speechSynthesis.cancel();
@@ -339,7 +343,7 @@ export default function LandingPage({
               </span>
             </h1>
             <p className="text-base md:text-lg text-neutral-600 dark:text-zinc-400 font-medium leading-relaxed max-w-xl">
-              Verify transportation credentials, build deep community trust, and make safer, data-backed decisions before every journey.
+              {t("homeSubtitle") || "Verify transportation credentials, build deep community trust, and make safer, data-backed decisions before every journey."}
             </p>
           </div>
 
@@ -473,7 +477,7 @@ export default function LandingPage({
       <section className="max-w-7xl mx-auto px-6" id="sra-social-proof">
         <div className="bg-white/60 dark:bg-zinc-900/40 border border-neutral-200/80 dark:border-zinc-800 p-8 rounded-3xl backdrop-blur-md">
           <p className="text-center text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-[0.25em] mb-8">
-            SafeRide Africa Vital Statistics
+            {t("vitalStats") || "Uyaphi Vital Statistics"}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
@@ -632,12 +636,12 @@ export default function LandingPage({
 
         <div className="lg:col-span-7 space-y-6 text-left">
           <span className="text-[9px] font-mono font-bold text-blue-600 dark:text-amber-500 uppercase tracking-[0.25em] block">Mission Statement & Architecture</span>
-          <h3 className="text-3xl md:text-4xl font-extrabold text-neutral-900 dark:text-white">Why SafeRide Africa Exists</h3>
+          <h3 className="text-3xl md:text-4xl font-extrabold text-neutral-900 dark:text-white">{t("whyExistsTitle") || "Why Uyaphi Exists"}</h3>
           <p className="text-sm md:text-base text-neutral-500 dark:text-zinc-400 leading-relaxed font-medium">
-            Modern commuter travel lacks standardized accountability. Plate fraud, fake profiles, and unregistered operations compromise safety daily.
+            {t("whyExistsDesc") || "Modern commuter travel lacks standardized accountability. Plate fraud, fake profiles, and unregistered operations compromise safety daily."}
           </p>
           <p className="text-sm md:text-base text-neutral-500 dark:text-zinc-400 leading-relaxed font-medium">
-            SafeRide Africa fills this gap by constructing a robust, crowdsourced, and moderated directory of rideshare and vehicle records. By prioritizing transparency and responsible reporting, we compile clean, sovereign data indices that safeguard travelers across the continent.
+            {t("whyExistsParagraph2") || "Uyaphi fills this gap by constructing a robust, crowdsourced, and moderated directory of rideshare and vehicle records. By prioritizing transparency and responsible reporting, we compile clean, sovereign data indices that safeguard travelers across the continent."}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             {[
@@ -688,15 +692,15 @@ export default function LandingPage({
         {/* Certificate Mockup Preview */}
         <div className="lg:col-span-5 relative">
           <div className="bg-white text-slate-900 border-8 border-double border-amber-600 p-6 md:p-8 rounded-xl shadow-2xl relative select-none font-serif text-center max-w-sm mx-auto">
-            {/* SafeRide Seal */}
+            {/* Uyaphi Seal */}
             <div className="absolute top-4 right-4 w-12 h-12 rounded-full border-2 border-dashed border-amber-600 flex items-center justify-center font-bold text-[9px] text-amber-600 uppercase font-sans tracking-tight">
-              SEAL
+              UYA
             </div>
 
             <div className="space-y-4">
               <div>
                 <span className="text-[9px] font-sans font-bold text-amber-600 uppercase tracking-widest block leading-none">CERTIFICATE OF RECOGNITION</span>
-                <h4 className="text-xl font-bold font-serif text-slate-800 mt-2">SafeRide Africa</h4>
+                <h4 className="text-xl font-bold font-serif text-slate-800 mt-2">Uyaphi</h4>
               </div>
 
               <div className="h-[1px] bg-slate-200 w-1/2 mx-auto" />
@@ -707,12 +711,12 @@ export default function LandingPage({
 
               <div>
                 <p className="text-[9px] font-sans text-slate-400 block uppercase">RECIPIENT ACCOUNT</p>
-                <p className="text-xs font-bold text-slate-800 font-sans">verified-commuter@saferide.africa</p>
+                <p className="text-xs font-bold text-slate-800 font-sans">verified-commuter@uyaphi.africa</p>
               </div>
 
               <div className="flex justify-between items-end pt-4 font-sans text-[8px] text-slate-400">
                 <div>
-                  <p className="font-bold border-t border-slate-200 pt-1">SafeRide Board</p>
+                  <p className="font-bold border-t border-slate-200 pt-1">Uyaphi Board</p>
                   <p>Trust Committee</p>
                 </div>
                 <div>
@@ -731,13 +735,13 @@ export default function LandingPage({
           {/* Brand block */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-amber-500 font-extrabold font-sans text-lg tracking-wider">SafeRide Africa</span>
+              <span className="text-amber-500 font-extrabold font-sans text-lg tracking-wider">Uyaphi</span>
             </div>
             <p className="text-xs text-neutral-400 font-medium leading-relaxed max-w-xs">
               Continental trust and safety registry for rideshare commuter transport. Building high-verity data networks to protect travelers across Africa.
             </p>
             <div className="text-[10px] font-mono text-neutral-500 uppercase">
-              Slogan: Know Before You Go
+              Slogan: {t("knowBeforeYouGo") || "Know Before You Go"}
             </div>
           </div>
 
@@ -794,9 +798,9 @@ export default function LandingPage({
 
         {/* Legal Disclaimer Row */}
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-neutral-500 font-medium font-sans">
-          <p>© 2026 SafeRide Africa. All sovereign rights reserved.</p>
+          <p>© 2026 Uyaphi. All sovereign rights reserved.</p>
           <p className="text-center md:text-right max-w-md">
-            SafeRide Africa is an independent community safety network and is not affiliated with or endorsed by external ridesharing applications.
+            Uyaphi is an independent community safety network and is not affiliated with or endorsed by external ridesharing applications.
           </p>
         </div>
       </footer>

@@ -1,5 +1,5 @@
 {
-  "name": "SafeRide Africa",
+  "name": "Uyaphi",
   "description": "Continental trust and safety intelligence platform for ride-hailing services in Africa, featuring real-time driver trust scoring, community incident reporting, and location safety metrics.",
   "requestFramePermissions": [
     "microphone"

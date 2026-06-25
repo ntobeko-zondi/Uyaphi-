@@ -39,7 +39,7 @@ export default function LegalModal({ isOpen, onClose, documentType }: LegalModal
               <span>COMMUTER PRIVACY POLICY (POPIA & GDPR COMPLIANT)</span>
             </div>
             <p>
-              SafeRide Africa is strictly committed to protecting the private data of commuters across the African continent. In compliance with the Protection of Personal Information Act (POPIA) in South Africa and global General Data Protection Regulation (GDPR) standards, we handle all personal information with extreme care.
+              Uyaphi is strictly committed to protecting the private data of commuters across the African continent. In compliance with the Protection of Personal Information Act (POPIA) in South Africa and global General Data Protection Regulation (GDPR) standards, we handle all personal information with extreme care.
             </p>
             <h4 className="font-bold text-white text-xs mt-3">1. Information Collection and De-Identification</h4>
             <p>
@@ -64,7 +64,7 @@ export default function LegalModal({ isOpen, onClose, documentType }: LegalModal
               <span>TERMS OF SERVICE</span>
             </div>
             <p>
-              By accessing SafeRide Africa, you agree to abide by these Terms of Service. This platform is designed to promote commuter safety, reduce transit hazards, and provide transparency for e-hailing and commuter networks.
+              By accessing Uyaphi, you agree to abide by these Terms of Service. This platform is designed to promote commuter safety, reduce transit hazards, and provide transparency for e-hailing and commuter networks.
             </p>
             <h4 className="font-bold text-white text-xs mt-3">1. Responsibility in Incident Reporting</h4>
             <p>
@@ -72,11 +72,11 @@ export default function LegalModal({ isOpen, onClose, documentType }: LegalModal
             </p>
             <h4 className="font-bold text-white text-xs mt-3">2. Limitation of Liability</h4>
             <p>
-              While we verify records, crowdsourced data is subjective. SafeRide Africa does not guarantee the absolute safety or operational compliance of any listed vehicle or driver and is not liable for transport outcomes.
+              While we verify records, crowdsourced data is subjective. Uyaphi does not guarantee the absolute safety or operational compliance of any listed vehicle or driver and is not liable for transport outcomes.
             </p>
             <h4 className="font-bold text-white text-xs mt-3">3. Account Integrity</h4>
             <p>
-              You must maintain the security of your commuter account details. SafeRide Africa will log and monitor security credentials to maintain POPIA reporting compliance.
+              You must maintain the security of your commuter account details. Uyaphi will log and monitor security credentials to maintain POPIA reporting compliance.
             </p>
           </div>
         );
@@ -89,7 +89,7 @@ export default function LegalModal({ isOpen, onClose, documentType }: LegalModal
               <span>COOKIES DIRECTIVE</span>
             </div>
             <p>
-              SafeRide Africa uses cookies and local browser storage to provide a personalized, secure, and accessible experience on our website.
+              Uyaphi uses cookies and local browser storage to provide a personalized, secure, and accessible experience on our website.
             </p>
             <h4 className="font-bold text-white text-xs mt-3">What are Cookies?</h4>
             <p>
@@ -114,7 +114,7 @@ export default function LegalModal({ isOpen, onClose, documentType }: LegalModal
               <span>RESPONSIBLE DISCLOSURE POLICY</span>
             </div>
             <p>
-              The security of SafeRide Africa is our absolute top priority. If you are a cybersecurity researcher or developer, we encourage you to report vulnerabilities in our system responsibly.
+              The security of Uyaphi is our absolute top priority. If you are a cybersecurity researcher or developer, we encourage you to report vulnerabilities in our system responsibly.
             </p>
             <h4 className="font-bold text-white text-xs mt-3">Rules of Engagement</h4>
             <ul className="list-disc pl-4 space-y-1">
@@ -136,7 +136,7 @@ export default function LegalModal({ isOpen, onClose, documentType }: LegalModal
               <span>REGIONAL VEHICLE DIRECTORY STATUS</span>
             </div>
             <p>
-              The SafeRide Africa central Directory catalogs verified e-hailing vehicles, municipal minibusses, and verified rideshare operators across prominent African metropolitan centers.
+              The Uyaphi central Directory catalogs verified e-hailing vehicles, municipal minibusses, and verified rideshare operators across prominent African metropolitan centers.
             </p>
             <h4 className="font-bold text-white text-xs mt-3">Directory Parameters</h4>
             <p>
@@ -156,13 +156,13 @@ export default function LegalModal({ isOpen, onClose, documentType }: LegalModal
               <span>PUBLICATION CERTIFICATE</span>
             </div>
             <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl space-y-2 text-[11px] font-mono">
-              <p className="text-zinc-500">ISSUER: SAFERIDE AFRICA AUDITING OFFICE</p>
+              <p className="text-zinc-500">ISSUER: UYAPHI AUDITING OFFICE</p>
               <p className="text-white font-bold">DIGITAL CERTIFICATE SHA-256 ENCRYPTED</p>
               <p className="text-amber-500">CERT-STATUS: ACTIVE & VALID</p>
               <p className="text-zinc-400">HASH: 9fb2c88d89ee52e257cf01a403d98ef57e3f804f</p>
             </div>
             <p>
-              This certificate verifies that SafeRide Africa publishes citizen safety logs in full conformity with POPIA data processing rules, ensuring crowdsourced records are cryptographic, immutable, and digitally auditable.
+              This certificate verifies that Uyaphi publishes citizen safety logs in full conformity with POPIA data processing rules, ensuring crowdsourced records are cryptographic, immutable, and digitally auditable.
             </p>
           </div>
         );
@@ -234,7 +234,7 @@ export default function LegalModal({ isOpen, onClose, documentType }: LegalModal
               <span>COMMUNITY CODE OF CONDUCT</span>
             </div>
             <p>
-              SafeRide Africa thrives on citizen collaboration, mutual respect, and honest representation. All community members must uphold high moral integrity.
+              Uyaphi thrives on citizen collaboration, mutual respect, and honest representation. All community members must uphold high moral integrity.
             </p>
             <h4 className="font-bold text-white text-xs mt-3">1. Absolute Reporting Integrity</h4>
             <p>

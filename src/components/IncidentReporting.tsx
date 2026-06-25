@@ -257,7 +257,7 @@ export default function IncidentReporting({
             </p>
           </div>
           <div className="bg-neutral-50 dark:bg-zinc-950 border border-neutral-100 dark:border-zinc-850 p-4 rounded-xl text-[11px] text-left text-neutral-450 text-neutral-500 dark:text-zinc-500 leading-relaxed font-mono">
-            &bull; SafeRide Africa safety moderators review community contributions within 12 hours.<br />
+            &bull; Uyaphi safety moderators review community contributions within 12 hours.<br />
             &bull; Verified patterns trigger dynamic area alerts to safeguard commuters instantly.
           </div>
           <button

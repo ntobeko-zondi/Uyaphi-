@@ -27,7 +27,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "Home",
     knowBeforeYouGo: "Know Before You Go",
     searchPlaceholder: "Enter vehicle plate number (e.g., SD 92 GP) or driver full name...",
-    beginJourney: "Begin SafeRide Journey",
+    beginJourney: "Begin Uyaphi Journey",
     submit: "Submit",
     privacy: "Privacy Policy",
     terms: "Terms of Service",
@@ -40,7 +40,19 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "Secure Commuter Access",
     adminGateway: "Staff & Admin Gateway",
     logout: "Log Out",
-    welcome: "Welcome to SafeRide Africa"
+    welcome: "Welcome to Uyaphi",
+    authRequiredMsg: "Create an account or sign in to access Uyaphi's verification network.",
+    voiceGuidanceEnabledMsg: "Voice guidance enabled. Uyaphi will assist your hands-free navigation.",
+    vitalStats: "Uyaphi Vital Statistics",
+    whyExistsTitle: "Why Uyaphi Exists",
+    whyExistsParagraph2: "Uyaphi fills this gap by constructing a robust, crowdsourced, and moderated directory of rideshare and vehicle records. By prioritizing transparency and responsible reporting, we compile clean, sovereign data indices that safeguard travelers across the continent.",
+    voiceEnabled: "Voice Enabled",
+    enableVoiceGuidance: "Enable Voice Guidance",
+    driverSearch: "Driver Search",
+    verificationSystem: "Verification System",
+    activeAlerts: "Active Alerts",
+    homeTitle: "Sovereign Transit Verification Loop",
+    homeSubtitle: "Africa's decentralized commuter intelligence platform. Instantly audit municipal permits, verify driver credentials, and log road safety ratings under zero corporate tracking."
   },
   sw: {
     search: "Tafuta",
@@ -52,7 +64,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "Mwanzo",
     knowBeforeYouGo: "Jua Kabla Hujaenda",
     searchPlaceholder: "Weka namba ya gari au jina kamili la dereva...",
-    beginJourney: "Anza Safari ya SafeRide",
+    beginJourney: "Anza Safari ya Uyaphi",
     submit: "Tuma",
     privacy: "Siri",
     terms: "Masharti ya Huduma",
@@ -65,7 +77,19 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "Ufikiaji Salama wa Abiria",
     adminGateway: "Mlango wa Wasimamizi",
     logout: "Ondoka",
-    welcome: "Karibu SafeRide Africa"
+    welcome: "Karibu Uyaphi",
+    authRequiredMsg: "Unda akaunti au ingia ili ufikie mtandao wa uhakiki wa Uyaphi.",
+    voiceGuidanceEnabledMsg: "Mwongozo wa sauti umewezeshwa. Uyaphi itasaidia urambazaji wako bila mikono.",
+    vitalStats: "Takwimu Muhimu za Uyaphi",
+    whyExistsTitle: "Kwa nini Uyaphi Ipo",
+    whyExistsParagraph2: "Uyaphi inaziba pengo hili kwa kujenga saraka thabiti, iliyoletwa na jamii, na iliyosimamiwa ya rekodi za usafiri wa pamoja na magari.",
+    voiceEnabled: "Sauti Imewezeshwa",
+    enableVoiceGuidance: "Wezesha Mwongozo wa Sauti",
+    driverSearch: "Tafuta Dereva",
+    verificationSystem: "Mfumo wa Uhakiki",
+    activeAlerts: "Tahadhari Amilifu",
+    homeTitle: "Mzunguko wa Uhakiki wa Usafiri Huru",
+    homeSubtitle: "Jukwaa la kiintelijensia la abiria la Afrika lililogatuliwa. Kagua vibali vya manispaa mara moja na uthibitishe sifa za dereva."
   },
   fr: {
     search: "Recherche",
@@ -77,7 +101,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "Accueil",
     knowBeforeYouGo: "Savoir Avant de Partir",
     searchPlaceholder: "Entrez la plaque du véhicule ou le nom du conducteur...",
-    beginJourney: "Commencer l'aventure SafeRide",
+    beginJourney: "Commencer l'aventure Uyaphi",
     submit: "Soumettre",
     privacy: "Confidentialité",
     terms: "Conditions d'utilisation",
@@ -90,7 +114,19 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "Accès Voyageur Sécurisé",
     adminGateway: "Passerelle Administration",
     logout: "Se déconnecter",
-    welcome: "Bienvenue sur SafeRide Africa"
+    welcome: "Bienvenue sur Uyaphi",
+    authRequiredMsg: "Créez un compte ou connectez-vous pour accéder au réseau de vérification d'Uyaphi.",
+    voiceGuidanceEnabledMsg: "Guidage vocal activé. Uyaphi vous assistera dans votre navigation mains libres.",
+    vitalStats: "Statistiques Vitales de Uyaphi",
+    whyExistsTitle: "Pourquoi Uyaphi Existe",
+    whyExistsParagraph2: "Uyaphi comble cette lacune en construisant un répertoire robuste, participatif et modéré de dossiers de covoiturage et de véhicules.",
+    voiceEnabled: "Voix Activée",
+    enableVoiceGuidance: "Activer le Guidage Vocal",
+    driverSearch: "Recherche Chauffeur",
+    verificationSystem: "Système Vérification",
+    activeAlerts: "Alertes Actives",
+    homeTitle: "Boucle de Vérification Souveraine",
+    homeSubtitle: "Plateforme d'intelligence de transport décentralisée en Afrique. Vérifiez instantanément les permis et les qualifications des chauffeurs."
   },
   ar: {
     search: "بحث",
@@ -102,7 +138,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "الرئيسية",
     knowBeforeYouGo: "اعرف قبل أن تذهب",
     searchPlaceholder: "أدخل رقم اللوحة أو اسم السائق...",
-    beginJourney: "ابدأ رحلة سيف رايد",
+    beginJourney: "ابدأ رحلة أويابهي",
     submit: "إرسال",
     privacy: "الخصوصية",
     terms: "شروط الخدمة",
@@ -115,7 +151,19 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "وصول آمن للمسافرين",
     adminGateway: "بوابة الإدارة",
     logout: "تسجيل الخروج",
-    welcome: "مرحباً بكم في سيف رايد أفريقيا"
+    welcome: "مرحباً بكم في أويابهي",
+    authRequiredMsg: "أنشئ حسابًا أو سجل الدخول للوصول إلى شبكة التحقق من أويابهي.",
+    voiceGuidanceEnabledMsg: "تم تمكين التوجيه الصوتي. سيساعدك أويابهي في التنقل بدون استخدام اليدين.",
+    vitalStats: "إحصاءات أويابهي الحيوية",
+    whyExistsTitle: "لماذا توجد أويابهي",
+    whyExistsParagraph2: "تسد أويابهي هذه الفجوة من خلال بناء دليل قوي ومبني على مشاركة المجتمع ومُدار لسجلات النقل المشترك والمركبات.",
+    voiceEnabled: "تم تمكين الصوت",
+    enableVoiceGuidance: "تمكين التوجيه الصوتي",
+    driverSearch: "البحث عن السائق",
+    verificationSystem: "نظام التحقق",
+    activeAlerts: "التنبيهات النشطة",
+    homeTitle: "حلقة التحقق من العبور السيادي",
+    homeSubtitle: "منصة ذكاء المسافرين اللامركزية في إفريقيا. قم بمراجعة التصاريح البلدية فورًا والتحقق من مؤهلات السائقين."
   },
   zu: {
     search: "Hlola",
@@ -127,7 +175,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "Ikhaya",
     knowBeforeYouGo: "Yazi Ngaphambi Kokuba Uhambe",
     searchPlaceholder: "Faka inombolo yeplate yemoto noma igama likashayela...",
-    beginJourney: "Qala uhambo lwe-SafeRide",
+    beginJourney: "Qala uhambo lwe-Uyaphi",
     submit: "Thumela",
     privacy: "Inqubomgomo Yemfihlo",
     terms: "Imigomo Yesevisi",
@@ -140,7 +188,19 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "Ukungena Okuvikelekile",
     adminGateway: "Isango Labaphathi",
     logout: "Phuma",
-    welcome: "Siyakwamukela ku-SafeRide Africa"
+    welcome: "Siyakwamukela ku-Uyaphi",
+    authRequiredMsg: "Dala i-akhawunti noma ungene ngemvume ukuze ufinyelele inethiwekhi yokuqinisekisa ye-Uyaphi.",
+    voiceGuidanceEnabledMsg: "Isiqondiso sezwi sivunyelwe. I-Uyaphi izokusiza ukuhamba ngaphandle kwezandla.",
+    vitalStats: "Izibalo Ezibalulekile ze-Uyaphi",
+    whyExistsTitle: "Kungani Ikhona I-Uyaphi",
+    whyExistsParagraph2: "I-Uyaphi igcwalisa lesi sikhala ngokwakha inkomba eqinile, eqoqwe emphakathini, nelawulwayo yamarekhodi ezokuthutha abantu nezimoto.",
+    voiceEnabled: "Izwi Livunyelwe",
+    enableVoiceGuidance: "Vumela Isiqondiso Sezwi",
+    driverSearch: "Hlola Umshayeli",
+    verificationSystem: "Isistimu Yokuqinisekisa",
+    activeAlerts: "Izixwayiso Ezisebenzayo",
+    homeTitle: "Ukuqinisekiswa Kwezokuthutha Okuzimele",
+    homeSubtitle: "Inkundla yokwaziswa kwabagibeli e-Afrika. Hlola ngokushesha izimvume zomasipala futhi uqinisekise ubuqiniso bomshayeli."
   },
   yo: {
     search: "Wa",
@@ -152,7 +212,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "Ile",
     knowBeforeYouGo: "Mọ Ki O To Lọ",
     searchPlaceholder: "Tẹ nọmba awo ọkọ ayọkẹlẹ tabi orukọ awakọ...",
-    beginJourney: "Bẹrẹ Irin-ajo SafeRide",
+    beginJourney: "Bẹrẹ Irin-ajo Uyaphi",
     submit: "Firanṣẹ",
     privacy: "Asiri",
     terms: "Awọn ofin Iṣẹ",
@@ -165,7 +225,19 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "Wọle To Vikele",
     adminGateway: "Ibusọ Awọn Alakoso",
     logout: "Jade kuro",
-    welcome: "Kaabo si SafeRide Africa"
+    welcome: "Kaabo si Uyaphi",
+    authRequiredMsg: "Ṣẹda akọọlẹ kan tabi wọle lati wọle si nẹtiwọọki ijẹrisi Uyaphi.",
+    voiceGuidanceEnabledMsg: "Itọnisọna ohun ti ṣiṣẹ. Uyaphi yoo ṣe iranlọwọ fun ọwọ-ọfẹ lilọ kiri rẹ.",
+    vitalStats: "Awọn iṣiro pataki Uyaphi",
+    whyExistsTitle: "Idi ti Uyaphi Fi Wa",
+    whyExistsParagraph2: "Uyaphi kun aafo yii nipa kikọ iwe ilana ti o lagbara ti awọn igbasilẹ gbigbe ati ọkọ.",
+    voiceEnabled: "Ohun ti Ṣiṣẹ",
+    enableVoiceGuidance: "Mu Itọnisọna Ohun Ṣiṣẹ",
+    driverSearch: "Wa Awakọ",
+    verificationSystem: "Eto Imudaniloju",
+    activeAlerts: "Awọn titaniji ti nṣiṣe lọwọ",
+    homeTitle: "Yipo Imudaniloju Transit ti Alase",
+    homeSubtitle: "Platform oye ero-irinna ti kii ṣe ti aarin ti Afirika. Ṣayẹwo awọn iwe-aṣẹ lẹsẹkẹsẹ ati jẹrisi awọn iwe-ẹri awakọ."
   },
   am: {
     search: "ፈልግ",
@@ -177,7 +249,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "መነሻ",
     knowBeforeYouGo: "ከመሄድዎ በፊት ይወቁ",
     searchPlaceholder: "የሰሌዳ ቁጥር ወይም የአሽከርካሪ ሙሉ ስም ያስገቡ...",
-    beginJourney: "የ SafeRide ጉዞ ይጀምሩ",
+    beginJourney: "የ Uyaphi ጉዞ ይጀምሩ",
     submit: "አስገባ",
     privacy: "ግላዊነት",
     terms: "የአገልግሎት ውሎች",
@@ -190,7 +262,19 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "ደህንነቱ የተጠበቀ መግቢያ",
     adminGateway: "የአስተዳዳሪ መግቢያ",
     logout: "ውጣ",
-    welcome: "ወደ SafeRide አፍሪካ እንኳን በደህና መጡ"
+    welcome: "ወደ Uyaphi እንኳን በደህና መጡ",
+    authRequiredMsg: "የ Uyaphi ማረጋገጫ አውታረ መረብን ለመድረስ መለያ ይፍጠሩ ወይም ይግቡ።",
+    voiceGuidanceEnabledMsg: "የድምፅ መመሪያ ነቅቷል። Uyaphi ያለእጅ አሰሳዎን ያግዛል።",
+    vitalStats: "የ Uyaphi ወሳኝ ስታቲስቲክስ",
+    whyExistsTitle: "ለምን Uyaphi አስፈለገ",
+    whyExistsParagraph2: "Uyaphi ይህንን ክፍተት የሚሞላው ጠንካራ፣ በማህበረሰብ የሚመራ እና የሚቆጣጠር የመኪና እና የተሽከርካሪ መዝገቦችን በማዘጋጀት ነው።",
+    voiceEnabled: "ድምፅ ነቅቷል",
+    enableVoiceGuidance: "የድምፅ መመሪያን አንቃ",
+    driverSearch: "የአሽከርካሪ ፍለጋ",
+    verificationSystem: "የማረጋገጫ ስርዓት",
+    activeAlerts: "ንቁ ማንቂያዎች",
+    homeTitle: "ሉዓላዊ የመተላለፊያ ማረጋገጫ ዑደት",
+    homeSubtitle: "የአፍሪካ ያልተማከለ የcommuter ኢንተለጀንስ መድረክ። የማዘጋጃ ቤት ፈቃዶችን ወዲያውኑ ይፈትሹ እና የአሽከርካሪ ምስክርነቶችን ያረጋግጡ።"
   },
   pt: {
     search: "Pesquisa",
@@ -202,7 +286,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "Início",
     knowBeforeYouGo: "Saiba Antes de Ir",
     searchPlaceholder: "Insira a placa do veículo ou o nome do motorista...",
-    beginJourney: "Iniciar Viagem SafeRide",
+    beginJourney: "Iniciar Viagem Uyaphi",
     submit: "Enviar",
     privacy: "Privacidade",
     terms: "Termos de Serviço",
@@ -215,7 +299,19 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "Acesso Seguro de Passageiros",
     adminGateway: "Painel de Administração",
     logout: "Sair",
-    welcome: "Bem-vindo ao SafeRide Africa"
+    welcome: "Bem-vindo ao Uyaphi",
+    authRequiredMsg: "Crie uma conta ou faça login para acessar a rede de verificação da Uyaphi.",
+    voiceGuidanceEnabledMsg: "Orientação por voz ativada. Uyaphi ajudará na sua navegação mãos-livres.",
+    vitalStats: "Estatísticas Vitais da Uyaphi",
+    whyExistsTitle: "Por que a Uyaphi Existe",
+    whyExistsParagraph2: "A Uyaphi preenche essa lacuna construindo um diretório robusto, colaborativo e moderado de registros de carona e veículos.",
+    voiceEnabled: "Voz Ativada",
+    enableVoiceGuidance: "Ativar Orientação por Voz",
+    driverSearch: "Pesquisa Motorista",
+    verificationSystem: "Sistema de Verificação",
+    activeAlerts: "Alertas Ativos",
+    homeTitle: "Ciclo de Verificação de Trânsito Soberano",
+    homeSubtitle: "Plataforma descentralizada de inteligência de passageiros na África. Audite licenças municipais e verifique as credenciais do motorista instantaneamente."
   },
   ha: {
     search: "Bincika",
@@ -227,7 +323,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     home: "Gida",
     knowBeforeYouGo: "Sani Kafin Ka Tafi",
     searchPlaceholder: "Shigar da lambar mota ko sunan direba...",
-    beginJourney: "Fara Tafiya SafeRide",
+    beginJourney: "Fara Tafiya Uyaphi",
     submit: "Saddamar",
     privacy: "Sirri",
     terms: "Sharuɗɗan Sabis",
@@ -240,6 +336,45 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     secureAccess: "Shiga Amintacce",
     adminGateway: "Kofofin Gudanarwa",
     logout: "Fita",
-    welcome: "Barka da zuwa SafeRide Africa"
+    welcome: "Barka da zuwa Uyaphi",
+    authRequiredMsg: "Ƙirƙiri asusu ko shiga don samun dama ga cibiyar tabbatarwa ta Uyaphi.",
+    voiceGuidanceEnabledMsg: "An kunna jagorancin murya. Uyaphi zai taimaka muku kewayawa ba tare da hannu ba.",
+    vitalStats: "Muhimman Kididdigar Uyaphi",
+    whyExistsTitle: "Me yasa Uyaphi Ya Kasance",
+    whyExistsParagraph2: "Uyaphi ya cike wannan gibin ta hanyar gina babban kundin adireshi na bayanan motocin hawa da ababen hawa.",
+    voiceEnabled: "Muryar tana Aiki",
+    enableVoiceGuidance: "Kunna Jagorancin Murya",
+    driverSearch: "Neman Direba",
+    verificationSystem: "Tsarin Tabbatarwa",
+    activeAlerts: "Hanyoyi masu Aiki",
+    homeTitle: "Maimaitawar Tabbatar da Hanyoyin Kaya na Mulki",
+    homeSubtitle: "Dandalin bayanan sirri na fasinjoji na Afirika da ba a karkata ba. Bincika izinin gunduma nan take kuma tabbatar da shaidar direba."
   }
 };
+
+import { useState, useEffect } from "react";
+
+export function useTranslation() {
+  const [lang, setLang] = useState(() => localStorage.getItem("saferide_language") || "en");
+
+  useEffect(() => {
+    const handleLangChange = (e: any) => {
+      setLang(e.detail);
+    };
+    window.addEventListener("saferide_language_changed" as any, handleLangChange);
+    return () => {
+      window.removeEventListener("saferide_language_changed" as any, handleLangChange);
+    };
+  }, []);
+
+  const setLanguage = (newLang: string) => {
+    localStorage.setItem("saferide_language", newLang);
+    window.dispatchEvent(new CustomEvent("saferide_language_changed", { detail: newLang }));
+  };
+
+  const t = (key: string) => {
+    return TRANSLATIONS[lang]?.[key] || TRANSLATIONS["en"]?.[key] || key;
+  };
+
+  return { t, language: lang, setLanguage };
+}

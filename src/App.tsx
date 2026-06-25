@@ -28,7 +28,7 @@ import AboutMePage from "./components/AboutMePage";
 import LegalModal from "./components/LegalModal";
 
 // Translations
-import { AFRICAN_LANGUAGES, TRANSLATIONS } from "./utils/translations";
+import { AFRICAN_LANGUAGES, TRANSLATIONS, useTranslation } from "./utils/translations";
 
 // Icons
 import {
@@ -153,17 +153,7 @@ export default function App() {
   });
 
   // Multi-Language Support State
-  const [language, setLanguage] = useState<string>(() => {
-    return localStorage.getItem("saferide_language") || "en";
-  });
-
-  useEffect(() => {
-    localStorage.setItem("saferide_language", language);
-  }, [language]);
-
-  const t = (key: string) => {
-    return TRANSLATIONS[language]?.[key] || TRANSLATIONS["en"]?.[key] || key;
-  };
+  const { t, language, setLanguage } = useTranslation();
 
   // Password Visibility State for Modal
   const [showPassword, setShowPassword] = useState(false);
@@ -204,11 +194,20 @@ export default function App() {
   const [prefilledDriverId, setPrefilledDriverId] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(true);
 
-  // Normal login input states
-  const [authEmail, setAuthEmail] = useState("");
-  const [authName, setAuthName] = useState("");
+  // Normal login input states with form persistence
+  const [authEmail, setAuthEmail] = useState(() => localStorage.getItem("uyaphi_modal_email") || "");
+  const [authName, setAuthName] = useState(() => localStorage.getItem("uyaphi_modal_name") || "");
   const [authPassword, setAuthPassword] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
+
+  // Persist modal form fields on inputs
+  useEffect(() => {
+    localStorage.setItem("uyaphi_modal_email", authEmail);
+  }, [authEmail]);
+
+  useEffect(() => {
+    localStorage.setItem("uyaphi_modal_name", authName);
+  }, [authName]);
 
   // Staff admin gateway inputs inside Modal
   const [isAdminMode, setIsAdminMode] = useState(false);
@@ -264,7 +263,7 @@ export default function App() {
     setAuthName("");
     setAuthPassword("");
     
-    speak(`Welcome to SafeRide Africa, ${name}. Your secure safety session has initiated.`);
+    speak(`Welcome to Uyaphi, ${name}. Your secure safety session has initiated.`);
 
     // Perform pending actions
     if (pendingSearch) {
@@ -300,7 +299,7 @@ export default function App() {
     setAdminPassword("");
     setIsAdminMode(false);
     
-    speak("Administrative access authorized. Loading SafeRide Operations Center.");
+    speak("Administrative access authorized. Loading Uyaphi Operations Center.");
   };
 
   // Secure Sign Out handler
@@ -350,17 +349,17 @@ export default function App() {
   const handleTabChange = (tab: string) => {
     if (tab === "home" || tab === "settings") {
       setActiveTab(tab);
-      speak(`Viewing ${tab === "home" ? "SafeRide Home" : "Settings"}`);
+      speak(`Viewing ${tab === "home" ? "Uyaphi Home" : "Settings"}`);
       return;
     }
 
     if (!isLoggedIn) {
-      setAuthMessage("Create an account or sign in to access SafeRide Africa's verification network.");
+      setAuthMessage("Create an account or sign in to access Uyaphi's verification network.");
       setPendingTab(tab);
       setPendingSearch(null);
       setAuthModalIsSignUp(false);
       setIsAuthModalOpen(true);
-      speak("Authentication required. Create an account or sign in to access SafeRide Africa's verification network.");
+      speak("Authentication required. Create an account or sign in to access Uyaphi's verification network.");
       return;
     }
 
@@ -371,12 +370,12 @@ export default function App() {
   // Landing Page Search proxy for non-authenticated users
   const handleLandingSearch = (query: string) => {
     if (!isLoggedIn) {
-      setAuthMessage("Create an account or sign in to access SafeRide Africa's verification network.");
+      setAuthMessage("Create an account or sign in to access Uyaphi's verification network.");
       setPendingSearch(query);
       setPendingTab(null);
       setAuthModalIsSignUp(false);
       setIsAuthModalOpen(true);
-      speak("Authentication required. Create an account or sign in to access SafeRide Africa's verification network.");
+      speak("Authentication required. Create an account or sign in to access Uyaphi's verification network.");
       return;
     }
 
@@ -596,7 +595,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
-                    setAuthMessage("Create an account or sign in to access SafeRide Africa's verification network.");
+                    setAuthMessage("Create an account or sign in to access Uyaphi's verification network.");
                     setAuthModalIsSignUp(false);
                     setIsAuthModalOpen(true);
                   }}
@@ -606,7 +605,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => {
-                    setAuthMessage("Create an account or sign in to access SafeRide Africa's verification network.");
+                    setAuthMessage("Create an account or sign in to access Uyaphi's verification network.");
                     setAuthModalIsSignUp(true);
                     setIsAuthModalOpen(true);
                   }}
@@ -719,6 +718,8 @@ export default function App() {
             { label: t("search"), value: "search", icon: Search },
             { label: t("reports"), value: "reports", icon: AlertTriangle },
             { label: t("achievements"), value: "achievements", icon: Trophy },
+            { label: t("profile"), value: "profile", icon: User },
+            { label: t("settings"), value: "settings", icon: Sliders },
             { label: t("about"), value: "about", icon: Info },
           ].map((item) => {
             const Icon = item.icon;
@@ -880,7 +881,7 @@ export default function App() {
                 <LandingPage
                   isLoggedIn={isLoggedIn}
                   onLoginClick={() => {
-                    setAuthMessage("Create an account or sign in to access SafeRide Africa's verification network.");
+                    setAuthMessage("Create an account or sign in to access Uyaphi's verification network.");
                     setAuthModalIsSignUp(false);
                     setIsAuthModalOpen(true);
                   }}
@@ -1006,7 +1007,7 @@ export default function App() {
         isDark ? "bg-zinc-950/40 border-zinc-900 text-zinc-500" : "bg-neutral-100 border-neutral-200 text-neutral-500"
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-          <span>&copy; {new Date().getFullYear()} SafeRide Africa Operations Center. All Rights Reserved.</span>
+          <span>&copy; {new Date().getFullYear()} Uyaphi Operations Center. All Rights Reserved.</span>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] font-bold">
             <button type="button" onClick={() => openLegalDoc("privacy")} className="hover:text-amber-500 cursor-pointer bg-transparent border-none outline-none">{t("privacy")}</button>
             <span className="opacity-30">|</span>
@@ -1036,8 +1037,8 @@ export default function App() {
 
       {/* ================= PREMIUM SaaS AUTHENTICATION MODAL ================= */}
       {isAuthModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-md bg-zinc-950/95 border border-zinc-850 rounded-3xl p-6 sm:p-8 shadow-2xl relative animate-scale-up max-h-[95vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-sm bg-zinc-950/95 border border-zinc-850 rounded-2xl p-4 sm:p-6 shadow-2xl relative animate-scale-up max-h-[90vh] overflow-y-auto">
             
             {/* Close Button */}
             <button
@@ -1047,38 +1048,35 @@ export default function App() {
                 setPendingTab(null);
                 setPendingSearch(null);
               }}
-              className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-white hover:bg-zinc-900 rounded-full transition-colors cursor-pointer"
+              className="absolute top-3.5 right-3.5 p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-900 rounded-full transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
-            {/* Top Logo */}
-            <div className="text-center space-y-1 mb-5">
-              <div className="inline-block">
-                <SafeRideLogo variant="full" />
+            {/* Top Logo - Compact Layout to save vertical space */}
+            <div className="text-center mb-3">
+              <div className="inline-block scale-90">
+                <SafeRideLogo variant="compact" />
               </div>
-              <p className="text-[10px] text-zinc-400 tracking-widest font-mono uppercase mt-1">
-                {t("knowBeforeYouGo")}
-              </p>
             </div>
 
             {/* Custom Redirect Message (High emphasis) */}
             {authMessage && (
-              <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center text-amber-300 text-xs font-semibold leading-relaxed">
+              <div className="mb-3 p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center text-amber-300 text-[11px] font-semibold leading-relaxed">
                 {authMessage}
               </div>
             )}
 
             {/* Form Title */}
-            <div className="space-y-1 mb-4 text-center">
-              <h2 className="text-lg font-extrabold tracking-tight text-white font-sans">
+            <div className="space-y-0.5 mb-3 text-center">
+              <h2 className="text-base font-extrabold tracking-tight text-white font-sans">
                 {isAdminMode 
                   ? t("adminGateway") 
                   : authModalIsSignUp 
-                    ? "Register Commuter Account" 
+                    ? "Register Uyaphi Account" 
                     : t("secureAccess")}
               </h2>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[10px] text-zinc-400">
                 {isAdminMode 
                   ? "Staff operator gateway & central moderation portal" 
                   : "Verify plate credentials and protect community safety"}
@@ -1087,23 +1085,23 @@ export default function App() {
 
             {/* Error alerts */}
             {authError && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-300 text-xs rounded-xl flex items-center gap-2.5">
+              <div className="mb-3 p-2.5 bg-red-500/10 border border-red-500/30 text-red-300 text-xs rounded-xl flex items-center gap-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
                 <p className="font-semibold">{authError}</p>
               </div>
             )}
 
-            <form onSubmit={handleAuthModalSubmit} className="space-y-3.5">
+            <form onSubmit={handleAuthModalSubmit} className="space-y-3">
               {isAdminMode ? (
                 /* ADMIN/STAFF LOGIN MODE */
                 <>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
+                    <label className="text-[9px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
                       Admin Username
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
-                        <Terminal className="w-4 h-4" />
+                        <Terminal className="w-3.5 h-3.5" />
                       </span>
                       <input
                         type="text"
@@ -1111,18 +1109,18 @@ export default function App() {
                         value={adminUsername}
                         onChange={(e) => setAdminUsername(e.target.value)}
                         placeholder="Username"
-                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-red-500 focus:ring-1 focus:ring-red-500 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
+                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-red-500 focus:ring-1 focus:ring-red-500 rounded-xl py-2 pl-9 pr-4 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
+                    <label className="text-[9px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
                       Security Token Code
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
-                        <Lock className="w-4 h-4" />
+                        <Lock className="w-3.5 h-3.5" />
                       </span>
                       <input
                         type={showPassword ? "text" : "password"}
@@ -1130,7 +1128,7 @@ export default function App() {
                         value={adminPassword}
                         onChange={(e) => setAdminPassword(e.target.value)}
                         placeholder="••••••••••••"
-                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-red-500 focus:ring-1 focus:ring-red-500 rounded-xl py-2.5 pl-10 pr-10 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
+                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-red-500 focus:ring-1 focus:ring-red-500 rounded-xl py-2 pl-9 pr-9 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
                       />
                       <button
                         type="button"
@@ -1140,6 +1138,20 @@ export default function App() {
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
+                  </div>
+
+                  {/* Character Toggle Checkbox for Admin */}
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <input
+                      type="checkbox"
+                      id="admin-show-password-checkbox"
+                      checked={showPassword}
+                      onChange={(e) => setShowPassword(e.target.checked)}
+                      className="rounded border-zinc-800 bg-zinc-900 text-amber-500 focus:ring-0 w-3 h-3 cursor-pointer"
+                    />
+                    <label htmlFor="admin-show-password-checkbox" className="text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-500 cursor-pointer">
+                      Show password characters
+                    </label>
                   </div>
                 </>
               ) : (
@@ -1147,12 +1159,12 @@ export default function App() {
                 <>
                   {authModalIsSignUp && (
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
+                      <label className="text-[9px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
                         Full Name
                       </label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
-                          <User className="w-4 h-4" />
+                          <User className="w-3.5 h-3.5" />
                         </span>
                         <input
                           type="text"
@@ -1160,19 +1172,19 @@ export default function App() {
                           value={authName}
                           onChange={(e) => setAuthName(e.target.value)}
                           placeholder="e.g. Ntobeko Zondi"
-                          className="w-full bg-zinc-900 border border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
+                          className="w-full bg-zinc-900 border border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl py-2 pl-9 pr-4 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
                         />
                       </div>
                     </div>
                   )}
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
+                    <label className="text-[9px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
                       Email Address
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
-                        <Mail className="w-4 h-4" />
+                        <Mail className="w-3.5 h-3.5" />
                       </span>
                       <input
                         type="email"
@@ -1180,18 +1192,18 @@ export default function App() {
                         value={authEmail}
                         onChange={(e) => setAuthEmail(e.target.value)}
                         placeholder="e.g. ntobekozondi98@gmail.com"
-                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
+                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl py-2 pl-9 pr-4 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
+                    <label className="text-[9px] font-bold font-mono text-zinc-400 uppercase tracking-widest block">
                       Secure Password
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
-                        <Lock className="w-4 h-4" />
+                        <Lock className="w-3.5 h-3.5" />
                       </span>
                       <input
                         type={showPassword ? "text" : "password"}
@@ -1199,7 +1211,7 @@ export default function App() {
                         value={authPassword}
                         onChange={(e) => setAuthPassword(e.target.value)}
                         placeholder="••••••••••••"
-                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl py-2.5 pl-10 pr-10 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
+                        className="w-full bg-zinc-900 border border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl py-2 pl-9 pr-9 text-xs font-semibold outline-none transition-all placeholder:text-zinc-600 text-white"
                       />
                       <button
                         type="button"
@@ -1209,6 +1221,20 @@ export default function App() {
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
+                  </div>
+
+                  {/* Character Toggle Checkbox for User */}
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <input
+                      type="checkbox"
+                      id="user-show-password-checkbox"
+                      checked={showPassword}
+                      onChange={(e) => setShowPassword(e.target.checked)}
+                      className="rounded border-zinc-800 bg-zinc-900 text-amber-500 focus:ring-0 w-3 h-3 cursor-pointer"
+                    />
+                    <label htmlFor="user-show-password-checkbox" className="text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-500 cursor-pointer">
+                      Show password characters
+                    </label>
                   </div>
 
                   {/* Remember Me switch */}
@@ -1218,9 +1244,9 @@ export default function App() {
                       id="remember-me-checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="rounded border-zinc-800 bg-zinc-900 text-amber-500 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                      className="rounded border-zinc-800 bg-zinc-900 text-amber-500 focus:ring-0 w-3 h-3 cursor-pointer"
                     />
-                    <label htmlFor="remember-me-checkbox" className="text-[10px] font-semibold text-zinc-400 cursor-pointer">
+                    <label htmlFor="remember-me-checkbox" className="text-[9px] font-semibold text-zinc-400 cursor-pointer">
                       Remember secure session
                     </label>
                   </div>
@@ -1239,21 +1265,21 @@ export default function App() {
                   {isAdminMode 
                     ? "Authorize admin security" 
                     : authModalIsSignUp 
-                      ? "Create Citizen Profile" 
-                      : "Begin SafeRide Session"}
+                      ? "Create Uyaphi Account" 
+                      : "Begin Uyaphi Session"}
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
 
             {/* Google Sign-In & Toggles */}
-            <div className="mt-4 pt-4 border-t border-zinc-850 text-center space-y-3">
+            <div className="mt-3 pt-3 border-t border-zinc-850 text-center space-y-2">
               
               {!isAdminMode && (
                 <>
-                  <div className="relative flex py-1 items-center">
+                  <div className="relative flex py-0.5 items-center">
                     <div className="flex-grow border-t border-zinc-800/80"></div>
-                    <span className="flex-shrink mx-3 text-zinc-500 text-[9px] font-mono tracking-wider uppercase">or</span>
+                    <span className="flex-shrink mx-2 text-zinc-500 text-[8px] font-mono tracking-wider uppercase">or</span>
                     <div className="flex-grow border-t border-zinc-800/80"></div>
                   </div>
 
@@ -1263,9 +1289,9 @@ export default function App() {
                       // Perform quick Google Sign-In as ntobekozondi98@gmail.com
                       handleLogin("Ntobeko Zondi", "ntobekozondi98@gmail.com");
                     }}
-                    className="w-full py-2.5 bg-zinc-900 hover:bg-zinc-850 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all border border-zinc-800/80 rounded-xl cursor-pointer"
+                    className="w-full py-2 bg-zinc-900 hover:bg-zinc-850 text-white font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all border border-zinc-800/80 rounded-xl cursor-pointer"
                   >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
                       <path
                         fill="#4285F4"
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -1290,7 +1316,7 @@ export default function App() {
 
               {!isAdminMode && (
                 <p className="text-xs text-zinc-500">
-                  {authModalIsSignUp ? "Already registered?" : "New to SafeRide?"}{" "}
+                  {authModalIsSignUp ? "Already registered?" : "New to Uyaphi?"}{" "}
                   <button
                     onClick={() => {
                       setAuthModalIsSignUp(!authModalIsSignUp);

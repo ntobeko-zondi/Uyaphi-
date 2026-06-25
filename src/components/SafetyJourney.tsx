@@ -133,10 +133,10 @@ export default function SafetyJourney({
       {
         id: "EML-001",
         badgeName: "Community Member",
-        description: "Joined SafeRide Africa to make transportation transparent and secure.",
+        description: "Joined Uyaphi to make transportation transparent and secure.",
         dateEarned: "June 21, 2026",
         sentAt: "2026-06-21T10:15:00Z",
-        certificateId: "SR-CERT-1092"
+        certificateId: "UY-CERT-1092"
       },
       {
         id: "EML-002",
@@ -183,7 +183,7 @@ export default function SafetyJourney({
     {
       id: "gs-member",
       name: "Community Member",
-      description: "Joined SafeRide Africa to make transportation transparent and secure.",
+      description: "Joined Uyaphi to make transportation transparent and secure.",
       category: "getting-started",
       requirements: "Create an active user profile.",
       points: 50,
@@ -340,6 +340,28 @@ export default function SafetyJourney({
     setEmailLogs((prev) => [newEmail, ...prev]);
     setNewBadgePopup(badge);
     speakText(`Congratulations! You earned the ${badge.name} badge. A certificate has been dispatched to ${userEmail}.`);
+
+    // Call real backend API to send actual email
+    fetch("/api/send-achievement-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: userEmail,
+        userName: userName,
+        badgeName: badge.name,
+        description: badge.description,
+        certificateId: certId,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("[Achievement Email API Response]", data);
+      })
+      .catch((err) => {
+        console.error("[Achievement Email API Error]", err);
+      });
     
     // Automatically dismiss popup after 5 seconds
     setTimeout(() => {
@@ -381,10 +403,10 @@ export default function SafetyJourney({
       doc.setTextColor(10, 15, 31);
       doc.setFont("Helvetica", "bold");
       doc.setFontSize(22);
-      doc.text("S R A", 420, 75, { align: "center" });
+      doc.text("U Y A P H I", 420, 75, { align: "center" });
 
       doc.setFontSize(13);
-      doc.text("SAFE RIDE AFRICA", 420, 95, { align: "center" });
+      doc.text("UYAPHI TRANSIT NETWORK", 420, 95, { align: "center" });
 
       doc.setFont("Helvetica", "italic");
       doc.setFontSize(8);
@@ -427,8 +449,8 @@ export default function SafetyJourney({
       doc.text("REGISTRY INFORMATION", 100, 395);
       doc.setFont("Helvetica", "normal");
       doc.text(`Certificate ID: ${certificateId}`, 100, 410);
-      doc.text(`Verification Ref: SRA-REF-${verificationNumber}`, 100, 425);
-      doc.text(`Authority: SafeRide Africa Trust Network`, 100, 440);
+      doc.text(`Verification Ref: UYA-REF-${verificationNumber}`, 100, 425);
+      doc.text(`Authority: Uyaphi Trust Network`, 100, 440);
 
       // Golden seal
       doc.setFillColor(212, 175, 55);
@@ -436,7 +458,7 @@ export default function SafetyJourney({
       doc.setTextColor(252, 251, 247);
       doc.setFont("Helvetica", "bold");
       doc.setFontSize(8);
-      doc.text("SRA", 420, 429, { align: "center" });
+      doc.text("UYA", 420, 429, { align: "center" });
       doc.setFontSize(5);
       doc.text("TRUST SEAL", 420, 437, { align: "center" });
 
@@ -624,14 +646,23 @@ export default function SafetyJourney({
                   <X className="w-4 h-4" />
                 </button>
 
-                <div className="text-center space-y-2">
-                  <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-500 mx-auto flex items-center justify-center shadow-lg">
-                    {(() => {
-                      const Icon = selectedBadge.icon;
-                      return <Icon className="w-8 h-8 shrink-0" />;
-                    })()}
+                <div className="text-center space-y-3">
+                  {/* Hexagon Detail Icon */}
+                  <div 
+                    className="w-20 h-20 mx-auto flex items-center justify-center bg-gradient-to-b from-amber-400 to-yellow-600 shadow-lg shrink-0"
+                    style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                  >
+                    <div 
+                      className="w-[74px] h-[74px] bg-zinc-950 text-amber-400 flex items-center justify-center"
+                      style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                    >
+                      {(() => {
+                        const Icon = selectedBadge.icon;
+                        return <Icon className="w-8 h-8 shrink-0" />;
+                      })()}
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-white mt-1">{selectedBadge.name}</h3>
+                  <h3 className="text-lg font-bold text-white mt-2">{selectedBadge.name}</h3>
                   <span className="text-[10px] font-mono uppercase text-amber-500 tracking-wider font-bold">
                     {selectedBadge.tier} Tier Rarity &bull; {selectedBadge.points} XP
                   </span>
@@ -687,10 +718,10 @@ export default function SafetyJourney({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {[
-              { id: "CERT-001", title: "Platinum Safe Commuter", requirement: "Unlock Community Member badge", badgeId: "gs-member", certId: "SRA-CERT-1092" },
-              { id: "CERT-002", title: "Regional Safety Auditor", requirement: "Complete 12 background audits", badgeId: "verify-auditor", certId: "SRA-CERT-3301" },
-              { id: "CERT-003", title: "Community Guardian", requirement: "Log moderator-approved reports", badgeId: "report-evidence", certId: "SRA-CERT-9081" },
-              { id: "CERT-004", title: "Sovereign Africa Defender", requirement: "Achieve top tier safety rank", badgeId: "rare-guardian-africa", certId: "SRA-CERT-7732" }
+              { id: "CERT-001", title: "Platinum Safe Commuter", requirement: "Unlock Community Member badge", badgeId: "gs-member", certId: "UYA-CERT-1092" },
+              { id: "CERT-002", title: "Regional Safety Auditor", requirement: "Complete 12 background audits", badgeId: "verify-auditor", certId: "UYA-CERT-3301" },
+              { id: "CERT-003", title: "Community Guardian", requirement: "Log moderator-approved reports", badgeId: "report-evidence", certId: "UYA-CERT-9081" },
+              { id: "CERT-004", title: "Sovereign Africa Defender", requirement: "Achieve top tier safety rank", badgeId: "rare-guardian-africa", certId: "UYA-CERT-7732" }
             ].map((cert) => {
               const associatedBadge = badges.find(b => b.id === cert.badgeId);
               const isEarned = associatedBadge?.unlocked;
@@ -813,12 +844,12 @@ export default function SafetyJourney({
                     <div className="max-w-md mx-auto p-5 bg-[#0A0F1F] border border-zinc-850 rounded-2xl space-y-4 text-center">
                       
                       <div className="text-center font-bold text-amber-500 text-lg tracking-wider">
-                        SRA REWARDS
+                        UYAPHI REWARDS
                       </div>
 
                       <div className="space-y-1">
                         <h4 className="text-white font-bold text-sm">Congratulations, Commuter!</h4>
-                        <p className="text-[11px] text-zinc-400">You achieved a premium milestone on the SafeRide Africa registry.</p>
+                        <p className="text-[11px] text-zinc-400">You achieved a premium milestone on the Uyaphi registry.</p>
                       </div>
 
                       <div className="p-3.5 bg-zinc-900 border border-zinc-800 rounded-xl space-y-1 inline-block w-full">

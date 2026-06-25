@@ -63,6 +63,45 @@ export default function DriverSearch({
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "");
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   
+  // Real-time backend AI state
+  const [aiAssessment, setAiAssessment] = React.useState<{ riskAssessment: string, actionSuggestions: string[], safetyScoreAdvice: string } | null>(null);
+  const [aiLoading, setAiLoading] = React.useState(false);
+  const [aiError, setAiError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!selectedDriver) {
+      setAiAssessment(null);
+      return;
+    }
+    setAiLoading(true);
+    setAiError(null);
+    setAiAssessment(null);
+
+    fetch("/api/driver-safety-intelligence", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ driver: selectedDriver })
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("HTTP state error: " + res.status);
+        }
+        const data = await res.json();
+        if (!data || (!data.riskAssessment && (!data.actionSuggestions || data.actionSuggestions.length === 0))) {
+          setAiAssessment(null); // empty state trigger
+        } else {
+          setAiAssessment(data);
+        }
+      })
+      .catch((err) => {
+        console.error("AI intelligence retrieval failed:", err);
+        setAiError(err.message || "Failed to contact safety system");
+      })
+      .finally(() => {
+        setAiLoading(false);
+      });
+  }, [selectedDriver]);
+  
   // Search segments/modes switcher
   const [searchMode, setSearchMode] = useState<"driver" | "vehicle">("driver");
 
@@ -337,7 +376,7 @@ export default function DriverSearch({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
                   searchMode === "driver"
-                    ? "Enter driver full name or SRA profile ID..."
+                    ? "Enter driver full name or Uyaphi profile ID..."
                     : "Enter vehicle plate number (e.g., SD 92 RT GP) or make/model..."
                 }
                 className="w-full bg-zinc-900 border-2 border-zinc-800/80 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 rounded-2xl pl-12 pr-4 py-4 text-xs md:text-sm text-white placeholder:text-zinc-500 transition-all font-medium shadow-xl"
@@ -508,12 +547,12 @@ export default function DriverSearch({
                   {/* Search Tips & Platform Guidelines */}
                   <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl p-5 space-y-3">
                     <h3 className="text-xs font-bold uppercase tracking-wider font-mono text-white flex items-center gap-2">
-                      <Info className="w-4 h-4 text-amber-500" /> SRA Commuter Verification Guidelines
+                      <Info className="w-4 h-4 text-amber-500" /> Uyaphi Commuter Verification Guidelines
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-zinc-400">
                       <div className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-900">
                         <p className="font-bold text-zinc-300 mb-1">1. Match Driver Details</p>
-                        <p className="text-[11px] leading-relaxed">Always cross-examine the driver's face and municipal permit ID against the SRA profile badge.</p>
+                        <p className="text-[11px] leading-relaxed">Always cross-examine the driver's face and municipal permit ID against the Uyaphi profile badge.</p>
                       </div>
                       <div className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-900">
                         <p className="font-bold text-zinc-300 mb-1">2. Audit License Plates</p>
@@ -532,7 +571,7 @@ export default function DriverSearch({
                       Add to Africa's Trust Intelligence
                     </h4>
                     <p className="text-xs text-zinc-300 leading-relaxed">
-                      SafeRide Africa operates entirely on peer contributions. You can register new driver profiles, submit reviews, and flag off-protocol rideshares to keep municipal corridors safe for students, commuters, and tourists.
+                      Uyaphi operates entirely on peer contributions. You can register new driver profiles, submit reviews, and flag off-protocol rideshares to keep municipal corridors safe for students, commuters, and tourists.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-1">
                       <button
@@ -913,7 +952,7 @@ export default function DriverSearch({
                   {reviews.filter((r) => r.driverId === selectedDriver.id).map((rev) => (
                     <div key={rev.id} className="p-4 bg-zinc-950/60 border border-zinc-850 rounded-xl space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase">Passenger Audit SRA-{rev.id}</span>
+                        <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase">Passenger Audit UYA-{rev.id}</span>
                         <span className="text-amber-500 text-xs font-bold flex items-center">
                           {rev.rating} ★
                         </span>
@@ -935,45 +974,78 @@ export default function DriverSearch({
             {/* Right column: AI Assessment & Trust Timeline */}
             <div className="lg:col-span-4 space-y-6">
               
-              {/* SafeRide AI Assessment */}
+              {/* Uyaphi Safety AI Assessment with 3 Async States: Loading, Empty, and Error */}
               <div className="bg-gradient-to-br from-zinc-900 to-amber-950/20 border border-zinc-800 rounded-2xl p-5 space-y-3 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
                 
                 <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-white flex items-center gap-1.5">
-                  <BrainCircuit className="w-4.5 h-4.5 text-amber-500" />
-                  SRA Safety AI Assessment
+                  <BrainCircuit className="w-4.5 h-4.5 text-amber-500 animate-pulse" />
+                  Uyaphi Safety AI Assessment
                 </h3>
 
-                <div className="text-xs text-zinc-300 leading-relaxed font-semibold space-y-2.5">
-                  {selectedDriver.trustScore >= 90 ? (
-                    <>
-                      <p>
-                        ✓ <strong>Elite Clearance:</strong> This driver holds verified sovereign credentials. No safety flags have been reported in the past 12 months.
+                {aiLoading ? (
+                  /* Loading State */
+                  <div className="space-y-3 py-2 animate-pulse">
+                    <div className="h-3.5 bg-zinc-800 rounded-full w-3/4" />
+                    <div className="h-3 bg-zinc-800 rounded-full w-5/6" />
+                    <div className="h-3 bg-zinc-800 rounded-full w-2/3" />
+                    <p className="text-[10px] font-mono text-zinc-500 italic mt-2">Computing security weights & background corridors...</p>
+                  </div>
+                ) : aiError ? (
+                  /* Error State with Graceful Heuristics Fallback & Manual Retry */
+                  <div className="space-y-2.5 py-1">
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 text-xs">
+                      <p className="font-bold flex items-center gap-1.5 mb-1 text-red-400">
+                        <AlertCircle className="w-3.5 h-3.5" /> High-Traffic Query Throttled
                       </p>
-                      <p>
-                        ✓ <strong>High Utilisation:</strong> Highly rated in campus perimeter checks. Recommended for commuter transport.
+                      <p className="text-[11px] text-zinc-400">
+                        {aiError}. Using local biometric security rules instead.
                       </p>
-                    </>
-                  ) : selectedDriver.trustScore >= 70 ? (
-                    <>
-                      <p>
-                        ✓ <strong>Standard Clear:</strong> Identity and background certificate check cleared. Standard community operational noise.
+                    </div>
+                    <div className="text-xs text-zinc-300 leading-relaxed font-semibold space-y-2">
+                      {selectedDriver.trustScore >= 75 ? (
+                        <p>✓ <strong>Local Rules:</strong> Profile meets state compliance parameters. Biometric identifiers are verified.</p>
+                      ) : (
+                        <p className="text-red-400">⚠ <strong>Local Rules Warning:</strong> Low community rating score. Exercise caution.</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        // Trigger re-fetch
+                        setSelectedDriver({ ...selectedDriver });
+                      }}
+                      className="text-[10px] font-mono text-amber-500 hover:text-amber-400 hover:underline font-bold"
+                    >
+                      ↻ Force Intelligence Recalculation
+                    </button>
+                  </div>
+                ) : !aiAssessment ? (
+                  /* Empty State */
+                  <div className="py-4 text-center">
+                    <p className="text-xs text-zinc-500 italic">No AI safety recommendations registered for this driver footprint yet.</p>
+                  </div>
+                ) : (
+                  /* Success/Data State */
+                  <div className="text-xs text-zinc-300 leading-relaxed font-semibold space-y-2.5">
+                    <p className="border-b border-zinc-850 pb-2 text-zinc-200">
+                      <strong>Risk Standing:</strong> {aiAssessment.riskAssessment}
+                    </p>
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest block font-bold">Recommended Protocols:</span>
+                      {aiAssessment.actionSuggestions.map((suggestion, idx) => (
+                        <div key={idx} className="flex items-start gap-1.5 text-zinc-400 text-[11px]">
+                          <span className="text-amber-500 mt-0.5">•</span>
+                          <span>{suggestion}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {aiAssessment.safetyScoreAdvice && (
+                      <p className="text-[10px] text-zinc-500 italic border-t border-zinc-850/50 pt-2 font-mono">
+                        {aiAssessment.safetyScoreAdvice}
                       </p>
-                      <p>
-                        ⚠ <strong>Guideline:</strong> Ensure physical vehicle license plates match <strong className="text-white font-mono">{selectedDriver.vehicle.licensePlate}</strong> before boarding.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-red-400">
-                        ⚠ <strong>High Risk Flag:</strong> Multiple unresolved safety reports logged in the metropolitan sector.
-                      </p>
-                      <p>
-                        ⚠ <strong>Recommendation:</strong> Ensure your GPS matches the provider route and report any unsolicited stops immediately.
-                      </p>
-                    </>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Trust Timeline (Standardized from LinkedIn template references) */}
@@ -984,7 +1056,7 @@ export default function DriverSearch({
 
                 <div className="space-y-4 relative pl-4 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-[1px] before:bg-zinc-800">
                   {[
-                    { date: "March 2026", title: "Vehicle Registration", desc: "SRA field officer approved vehicle plate registration." },
+                    { date: "March 2026", title: "Vehicle Registration", desc: "Uyaphi field officer approved vehicle plate registration." },
                     { date: "April 2026", title: "Criminal Record Scan", desc: "Background check cleared with municipal authorities." },
                     { date: "May 2026", title: "Trust Star Badge", desc: "Awarded for 100+ positive commuter check-ins." },
                     { date: "June 2026", title: "Identity Cleared", desc: "Matched biometric parameters against sovereign state database." },

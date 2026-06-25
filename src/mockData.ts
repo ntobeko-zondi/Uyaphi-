@@ -362,7 +362,7 @@ export const INITIAL_ALERTS: SafetyAlert[] = [
   {
     id: "ALT-003",
     title: "Fake Driver Verification Sweep",
-    message: "SafeRide inspectors checking e-hail documentation near Ikeja. Verify matching car plates before boarding.",
+    message: "Uyaphi inspectors checking e-hail documentation near Ikeja. Verify matching car plates before boarding.",
     category: "community_notice",
     country: "Nigeria",
     city: "Lagos",

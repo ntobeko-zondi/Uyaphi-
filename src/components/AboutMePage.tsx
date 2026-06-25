@@ -44,7 +44,7 @@ export default function AboutMePage({ data }: AboutMePageProps) {
         {/* Primary Meta */}
         <div className="text-center md:text-left space-y-2.5">
           <span className="text-[10px] bg-amber-500/10 text-amber-500 font-mono font-bold px-3 py-1 rounded-full border border-amber-500/20 uppercase tracking-wider">
-            SafeRide Africa Founder
+            Uyaphi Founder
           </span>
           <h1 className="text-2xl md:text-3xl font-display font-black tracking-tight text-white leading-none">
             {data.fullName}
