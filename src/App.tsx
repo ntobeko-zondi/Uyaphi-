@@ -26,6 +26,7 @@ import UserProfilePage from "./components/UserProfilePage";
 import SettingsPage from "./components/SettingsPage";
 import AboutMePage from "./components/AboutMePage";
 import LegalModal from "./components/LegalModal";
+import founderPhoto from "./assets/images/Me.jpg";
 
 // Translations
 import { AFRICAN_LANGUAGES, TRANSLATIONS, useTranslation } from "./utils/translations";
@@ -75,7 +76,7 @@ const DEFAULT_ABOUT_ME: AboutMeData = {
   location: "University of the Witwatersrand, Johannesburg, South Africa",
   linkedin: "linkedin.com/in/ntobeko-zondi-22769828b",
   languages: ["English", "IsiZulu"],
-  profilePhoto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=300&h=300",
+  profilePhoto: founderPhoto,
 };
 
 export default function App() {
@@ -112,7 +113,18 @@ export default function App() {
 
   const [aboutMe, setAboutMe] = useState<AboutMeData>(() => {
     const saved = localStorage.getItem("saferide_about_me");
-    return saved ? JSON.parse(saved) : DEFAULT_ABOUT_ME;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (!parsed.profilePhoto || parsed.profilePhoto.includes("unsplash.com") || parsed.profilePhoto.startsWith("http")) {
+          parsed.profilePhoto = DEFAULT_ABOUT_ME.profilePhoto;
+        }
+        return parsed;
+      } catch (e) {
+        return DEFAULT_ABOUT_ME;
+      }
+    }
+    return DEFAULT_ABOUT_ME;
   });
 
   // Persistent storage synchronizer
@@ -183,6 +195,7 @@ export default function App() {
     return localStorage.getItem("saferide_voice_assist") === "true";
   });
   const [showAccessibilityPanel, setShowAccessibilityPanel] = useState<boolean>(false);
+  const [dismissedAlertId, setDismissedAlertId] = useState<string | null>(null);
 
   // Authentication Modal states for unauthenticated users trying to search or visit tabs
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -619,6 +632,8 @@ export default function App() {
 
         </div>
       </header>
+
+
 
       {/* ACCESSIBILITY BAR DRAWER */}
       {showAccessibilityPanel && (

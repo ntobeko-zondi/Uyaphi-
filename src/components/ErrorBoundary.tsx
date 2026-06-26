@@ -11,12 +11,15 @@ interface State {
   errorInfo: ErrorInfo | null;
 }
 
-export default class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
+export default class ErrorBoundary extends React.Component<Props, State> {
+  // Override typings for local environment compatibility
+  props!: Props;
+  state: State = {
     hasError: false,
     error: null,
     errorInfo: null
   };
+  setState!: (state: Partial<State> | ((prevState: State) => Partial<State>)) => void;
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error, errorInfo: null };
