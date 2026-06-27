@@ -1,10 +1,6 @@
 # Uyaphi
 
 <p align="center">
-  <img src="assets/GHBanner.png" alt="Uyaphi Banner" width="100%">
-</p>
-
-<p align="center">
 
 **Know Before You Go**
 
