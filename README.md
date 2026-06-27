@@ -393,7 +393,7 @@ perf: improve performance
 - **Live App**: [https://uyaphi-304072972581.europe-west2.run.app](https://uyaphi-304072972581.europe-west2.run.app)
 - **GitHub Issues**: Report bugs and request features
 - **GitHub Discussions**: Join community conversations
-- **Email**: contact@uyaphi.dev
+- **Email**: ntobekozondi99@gmail.com
 
 ---
 
